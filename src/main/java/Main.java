@@ -1,18 +1,13 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ilog.concert.IloException;
 import org.jgrapht.graph.SimpleGraph;
 
-import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 /**
  * Created by Szuman on 17.03.2017.

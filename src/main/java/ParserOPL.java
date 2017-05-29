@@ -18,6 +18,11 @@ public class ParserOPL {
     private final String[] VIRTUAL = {"Vv", "Ed"};
 
     private Scanner sc;
+
+    public Network getNetwork() {
+        return network;
+    }
+
     private Network network;
     private List<Request> requests;
 
@@ -25,7 +30,7 @@ public class ParserOPL {
         sc = new Scanner(new BufferedReader(new FileReader(new File(filename))));
     }
 
-    public void parse() {
+    public ParserOPL parse() {
         requests = new ArrayList<>();
         network = new Network(requests);
 
@@ -53,6 +58,7 @@ public class ParserOPL {
         }
         sc.close();
         pLink.resetCounter();
+        return this;
     }
 
     private void parseRouter() {

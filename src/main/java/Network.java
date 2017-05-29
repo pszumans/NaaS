@@ -46,6 +46,7 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     public Network() {
         super(pLink.class);
+        requests = new ArrayList<>();
         usedCapacity = 0;
     }
 
