@@ -39,7 +39,7 @@ public class Path extends GraphWalk<pRouter, pLink> {
 		direction = Direction.SIMPLE;
 	}
 
-	private int getLeastCapacity() {
+	public int getLeastCapacity() {
 		return getEdgeList().stream().mapToInt(pLink::getSubstrateCapacity).min().getAsInt();
 	}
 

@@ -23,7 +23,8 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
         super(r1, r2, capacity, graph);
         index = ++COUNTER;
         substrateCapacity = capacity;
-        graph.setEdgeWeight(this, (double) 1 / substrateCapacity);
+        if (Heuristic.WEIGHTABLE_LINKS)
+        graph.setEdgeWeight(this, (double) 1 / substrateCapacity); // waga = 1 / przepustowość
     }
 
     private int substrateCapacity;

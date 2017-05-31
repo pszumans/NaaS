@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 /**
  * Created by Szuman on 11.05.2017.
@@ -34,36 +33,51 @@ public class ParserOPL {
         requests = new ArrayList<>();
         network = new Network(requests);
 
-        sc.skip(Pattern.compile("=|\\}|<|>"));
+//        sc.skip("=|\\}|<|>");
+        sc.useDelimiter("\\s*=\\s*|" +
+                "\\s*\\s*\\{\\s*|" +
+                "\\s*<\\s*|" +
+                "\\s*>\\s*|" +
+                "\\s*\\[\\s*|" +
+                "\\s*]\\s*|" +
+                "\\s");
+//        System.out.println(sc.delimiter());
 
         String text;
-        while (sc.hasNextLine()) {
+        while (
+//                sc.hasNextLine()) {
 //            if (arePaths)
 //                break;
-            if (sc.hasNext()) {
+//            if (
+                    sc.hasNext()) {
                 text = sc.next();
-//                if (text.matches("param*"))
+//                System.out.println("TEXT: " + text);
                 if (text.equals("Vw"))
-                    parseRouter();
+                    parseRouters();
                 else if (text.equals("Ee"))
                     parseLinks();
-                else if (text.equals("Vw"))
-                    parseVRouter();
-                else if (text.equals("Vw"))
+                else if (text.equals("Vv"))
+                    parseVRouters();
+                else if (text.equals("Ed"))
                     parseVLinks();
-
-            }
-            else
-                sc.nextLine();
+                else if (sc.hasNextLine())
+//                    System.out.println("LINE: " +
+                            sc.nextLine()
+                    ;
+//                    );
         }
         sc.close();
         pLink.resetCounter();
         return this;
     }
 
-    private void parseRouter() {
-        String name;// = sc.next();
-        while (!(name = sc.next()).equals("}")) {
+    private void parseRouters() {
+//        System.out.println("SPACE: " +
+                sc.next()
+                ;
+//        );
+        while (!sc.next().equals("}")) {
+            String name = sc.next();
             int power = sc.nextInt();
             int memory = sc.nextInt();
             int location = sc.nextInt();
@@ -72,57 +86,62 @@ public class ParserOPL {
     }
 
     private void parseLinks() {
-        String r1;
-        while (!(r1 = sc.next()).equals("}")) {
+        sc.next();
+        while (!sc.next().equals("}")) {
+            String r1 = sc.next();
             String r2 = sc.next();
             pRouter router1 = (pRouter) getRouterByName(network, r1);
-            pRouter router2 = (pRouter) getRouterByName(network, r1);
+            pRouter router2 = (pRouter) getRouterByName(network, r2);
             int capacity = sc.nextInt();
             new pLink(router1, router2, capacity, network);
         }
     }
 
-    private void parseVRouter() {
+    private void parseVRouters() {
         Request request = new Request(vLink.class);
-        requests.add(request);
+//        requests.add(request);
+        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
         while (true) {
             String name = sc.next();
-            if (name.equals("}")) {
-                request = new Request(vLink.class);
-                requests.add(request);
-                name = sc.next();
-            } else if (name.equals(";"))
-                break;
+//            System.out.println(name);
             int power = sc.nextInt();
             int memory = sc.nextInt();
             List<Integer> locations = new ArrayList<>();
-//            sc.next(); // {
             String location;// = sc.next();
             while (!(location = sc.next()).equals("}"))
                 locations.add(Integer.valueOf(location));
-//            sc.next(); // }
             request.addVertex(new vRouter(name, power, memory, locations));
+//            System.out.println(name + power + memory + locations);
+            if (sc.next().equals("}")) {
+                requests.add(request);
+                if (sc.next().equals(";")) {
+                    break;
+                }
+                request = new Request(vLink.class);
+            }
         }
     }
 
     private void parseVLinks() {
         int i = 0;
-        Request request = requests.get(i++);
+        Request request = requests.get(i);
+        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
         while (true) {
             String r1 = sc.next();
-            if (r1.equals("}")) {
-                request = new Request(vLink.class);
-                requests.add(request);
-                r1 = sc.next();
-            }
-            if (r1.equals(";"))
-                break;
             String r2 = sc.next();
+//            System.out.println(r1 + r2);
             vRouter router1 = (vRouter) getRouterByName(request, r1);
             vRouter router2 = (vRouter) getRouterByName(request, r2);
             int capacity = sc.nextInt();
-            new vLink(router1, router2, capacity, request);
+            request.addLink(new vLink(router1, router2, capacity, request));
+            if (sc.next().equals("}")) {
+                if (sc.next().equals(";")) {
+                    break;
+                }
+                request = requests.get(++i);
+            }
         }
+//        requests.forEach(r -> System.out.println(r.getLinks()));
     }
 
     public static Router getRouterByName(SimpleGraph<? extends Router, ? extends Link> graph, String routerName) {

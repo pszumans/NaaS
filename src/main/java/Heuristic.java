@@ -6,6 +6,10 @@ import java.util.stream.Collectors;
  */
 public class Heuristic {
 
+    public static final boolean WEIGHTABLE_LINKS = false;
+    private static final boolean RESTORABLE_PATHS = true;
+
+
     private final Network network;
     private List<PathEnds> paths;
     private Map<Integer, List<Path>> pathsAllocated;
@@ -30,6 +34,7 @@ public class Heuristic {
     private boolean serveRequest(Request request) {
         if (pathsAllocated == null)
             pathsAllocated = new LinkedHashMap<>();
+        if (paths == null || RESTORABLE_PATHS)
         paths = network.getActualPaths();
         Map<vRouter, pRouter> routersAllocation = new LinkedHashMap<>();
         List<vLink> linksAllocated = new ArrayList<>();
@@ -49,7 +54,7 @@ public class Heuristic {
             network.addUsedCapacity(chosenPath.serveRequest(request.getIndex(), link));
             linksAllocated.add(link);
 //            System.out.println(chosenPath);
-            updateWeights(chosenPath);
+            updateWeights(chosenPath); // aktualizuj wagę
             routersAllocation.put(link.getSource(), chosenPath.getSource());//;getStartVertex());
             routersAllocation.put(link.getTarget(), chosenPath.getTarget());//;getEndVertex());
         }
@@ -57,6 +62,7 @@ public class Heuristic {
     }
 
     private void updateWeights(Path chosenPath) {
+        if (WEIGHTABLE_LINKS)
         chosenPath.getEdgeList().forEach(l -> l.updateWeight());
     }
 
@@ -92,13 +98,17 @@ public class Heuristic {
     }
 
     private Path selectBestPath(PathEnds pathEnds) {
+        if (WEIGHTABLE_LINKS)
         return pathEnds.getPaths().stream()
                 .min(
-                        (p1, p2) -> p1.getWeight() > p2.getWeight() ? 1
-                                : p1.getWeight() < p2.getWeight() ? -1
-                                : 0
+                        new PathsComparator()
+//                      (p1, p2) -> p1.getWeight() * p1.getLength() - p1.getLeastCapacity() > p2.getWeight() * p1.getLength() - p1.getLeastCapacity() ? 1
+//                                : p1.getWeight() * p1.getLength() - p1.getLeastCapacity() < p2.getWeight() * p1.getLength() - p1.getLeastCapacity() ? -1
+//                                : 0
                 )
                 .get();
+        return pathEnds.getPaths().stream().min(
+            new PathsComparatorUpdate()).get();
     }
 
     private PathEnds chooseBestPathEnds(List<PathEnds> properPaths) {
