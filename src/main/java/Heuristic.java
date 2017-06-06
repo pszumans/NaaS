@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Szuman on 27.03.2017.
@@ -8,6 +9,7 @@ public class Heuristic {
 
     public static final boolean WEIGHTABLE_LINKS = false;
     private static final boolean RESTORABLE_PATHS = true;
+    public static final boolean RESTORABLE_LOCATION = true;
 
 
     private final Network network;
@@ -18,8 +20,11 @@ public class Heuristic {
         this.network = network;
     }
 
-    public void solve() {
+    public long solve() {
+        long start = System.nanoTime();
         serveRequests();
+        long end = System.nanoTime();
+        return (end - start) / 1000000;
     }
 
     private void serveRequests() {
@@ -29,6 +34,7 @@ public class Heuristic {
                 r.setServed(boo = serveRequest(r));
                 System.out.println("				STATUS R = " + r + " : " + boo);
         });
+        System.out.println(pathsAllocated);
     }
 
     private boolean serveRequest(Request request) {
@@ -38,6 +44,7 @@ public class Heuristic {
         paths = network.getActualPaths();
         Map<vRouter, pRouter> routersAllocation = new LinkedHashMap<>();
         List<vLink> linksAllocated = new ArrayList<>();
+        if (pathsAllocated.get(request.getIndex()) == null)
         pathsAllocated.put(request.getIndex(), new ArrayList<>());
 //        List<Path> chosenPaths = new ArrayList<>();
         for (vLink link : request.getLinks()) {
@@ -47,7 +54,10 @@ public class Heuristic {
             if (chosenPath == null) {
 //                releaseRequest(chosenPaths, request.getIndex());
                 releaseRequest(request.getIndex());
-                return false;
+//                new GraphVisualisation(network).start();
+//                new Scanner(System.in).nextLine();
+                return serveRequest(request);
+//                return false;
             }
 //            chosenPaths.add(chosenPath);
             pathsAllocated.get(request.getIndex()).add(chosenPath);
@@ -57,6 +67,7 @@ public class Heuristic {
             updateWeights(chosenPath); // aktualizuj wagę
             routersAllocation.put(link.getSource(), chosenPath.getSource());//;getStartVertex());
             routersAllocation.put(link.getTarget(), chosenPath.getTarget());//;getEndVertex());
+            System.out.println(link + "-> ROUTERS ALLO: " + routersAllocation);
         }
         return true;
     }
@@ -75,7 +86,12 @@ public class Heuristic {
     }
 
     private Path chooseBestPath(Map<vRouter, pRouter> routersAllocation, List<Path> chosenPaths, vLink link) {
-        List<PathEnds> properPaths = getProperPaths(link);
+        List<PathEnds> properPaths;// = paths;// = getProperPaths(link);
+        if (!routersAllocation.isEmpty()) {
+//            properPaths = chooseFromAllocatedRouters(paths, routersAllocation, link);
+            properPaths = getProperPaths(chooseFromAllocatedRouters(paths, routersAllocation, link), link, routersAllocation.values());
+        } else
+            properPaths = getProperPaths(link);
 //        System.out.println("getProperPaths");
 //        properPaths.forEach(p -> System.out.println(p.getPaths()));
         if (!chosenPaths.isEmpty())
@@ -84,17 +100,47 @@ public class Heuristic {
 //        properPaths.forEach(p -> System.out.println(p.getPaths()));
         if (properPaths.isEmpty())
             return null;
-        if (!routersAllocation.isEmpty())
-            properPaths = chooseFromAllocatedRouters(properPaths, routersAllocation, link);
-//        System.out.println("chooseFromAllocatedRouters");
+
+
+//        if (!routersAllocation.isEmpty())
+//            properPaths = chooseFromAllocatedRouters(properPaths, routersAllocation, link);
+
+
+        //        System.out.println("chooseFromAllocatedRouters");
 //        properPaths.forEach(p -> System.out.println(p.getPaths()));
-        PathEnds selectedPathEnds = chooseBestPathEnds(properPaths);
-        if (selectedPathEnds == null)
-            return null;
+
+
+//        PathEnds selectedPathEnds = chooseBestPathEnds(properPaths);
+//        System.out.println(selectedPathEnds);
+//        if (selectedPathEnds == null)
+//            return null;
 //        System.out.println("MAPPATH: " + properPaths);
-        Path bestPath = selectBestPath(selectedPathEnds);
+
+
+//        Path bestPath = selectBestPath(selectedPathEnds);
+        Path bestPath = getBestPath(properPaths);
+
+        List<Path> pathEnds = properPaths.stream().flatMap(pE -> pE.getPaths().stream()).collect(Collectors.toList());
+        Collections.sort(pathEnds, new PathsComparator());
+//        System.out.println("properPaths: " + properPaths);
+//        properPaths.forEach(p -> {System.out.println("PATH: " + p + " -> " + (Network.locations.get(p.getFirst().getLocation()) + Network.locations.get(p.getSecond().getLocation())) + " -> ");
+//            p.getPaths().forEach(pp -> System.out.print(pp.getSource().getName() + " " + pp.getTarget().getName() + " W: " + pp.getWeight() + "; "));});
+//        System.out.println();
+        pathEnds.forEach(p -> System.out.print(p + " W: " + p.getWeight() + " ; "));
+        System.out.println();
+//        System.out.println("#########sortedPaths: " + pathEnds);
+        int sum = Network.locations.get(bestPath.getSource().getLocation()) + Network.locations.get(bestPath.getTarget().getLocation());
+        System.out.println(bestPath + " weight: " + bestPath.getWeight() + " location: " + sum);
+        System.out.println(Network.locations);
 //        System.out.println("CHOSEN_PATH: " + bestPath);
         return bestPath;
+    }
+
+    private Path getBestPath(List<PathEnds> pathEnds) {
+//        if (WEIGHTABLE_LINKS)
+            return pathEnds.stream().flatMap(pE -> pE.getPaths().stream()).collect(Collectors.toList()).stream().min(new PathsComparator()).get();
+//        return pathEnds.stream().flatMap(pE -> pE.getPaths().stream()).collect(Collectors.toList()).stream().min(
+//                new PathsComparatorUpdate()).get();
     }
 
     private Path selectBestPath(PathEnds pathEnds) {
@@ -102,9 +148,6 @@ public class Heuristic {
         return pathEnds.getPaths().stream()
                 .min(
                         new PathsComparator()
-//                      (p1, p2) -> p1.getWeight() * p1.getLength() - p1.getLeastCapacity() > p2.getWeight() * p1.getLength() - p1.getLeastCapacity() ? 1
-//                                : p1.getWeight() * p1.getLength() - p1.getLeastCapacity() < p2.getWeight() * p1.getLength() - p1.getLeastCapacity() ? -1
-//                                : 0
                 )
                 .get();
         return pathEnds.getPaths().stream().min(
@@ -148,6 +191,7 @@ public class Heuristic {
         if (properRoutersAllocation.isEmpty())
             return false;
         pathEnds.setCapability(link, properRoutersAllocation);
+//        System.out.println(properRoutersAllocation.values().stream().anyMatch(r -> pathEnds.hasElement(r)));
         return /*list.isEmpty() ? false : */properRoutersAllocation.values().stream().anyMatch(r -> pathEnds.hasElement(r));
     }
 
@@ -158,7 +202,34 @@ public class Heuristic {
                         checkParameters(pathEnds, link) && pathEnds.getPaths().stream().anyMatch(p -> p.checkCapacity(link.getCapacity()))).collect(Collectors.toList());
         properPaths.forEach(k -> k.filterPaths(p -> p.checkCapacity(link.getCapacity())));
 //        paths.forEach(p -> System.out.println(p.getPaths()));
+        System.out.println(properPaths);
         return properPaths;
+    }
+
+    private List<PathEnds> getProperPaths(List<PathEnds> properPaths, vLink link, Collection<pRouter> routersAllocation) {
+//		return
+        properPaths =
+                properPaths.stream().filter(pathEnds ->
+                        checkParameters(pathEnds, link, routersAllocation) && pathEnds.getPaths().stream().anyMatch(p -> p.checkCapacity(link.getCapacity()))).collect(Collectors.toList());
+        properPaths.forEach(k -> k.filterPaths(p -> p.checkCapacity(link.getCapacity())));
+//        paths.forEach(p -> System.out.println(p.getPaths()));
+        return properPaths;
+    }
+
+    private boolean checkParameters(PathEnds routers, vLink link, Collection<pRouter> routersAllocation) {
+        boolean simple = (routersAllocation.contains(routers.getFirst()) ||
+                routers.getFirst().checkParameters((link.getSource())))
+                && (routersAllocation.contains(routers.getSecond()) ||
+                routers.getSecond().checkParameters((link.getTarget())));
+        boolean reverse = (routersAllocation.contains(routers.getFirst()) ||
+                routers.getFirst().checkParameters(link.getTarget()))
+                && (routersAllocation.contains(routers.getSecond()) ||
+                routers.getSecond().checkParameters(link.getSource()));
+        if (simple && !reverse)
+            routers.setCapability(PathEnds.Capability.SIMPLE);
+        else if (!simple && reverse)
+            routers.setCapability(PathEnds.Capability.REVERSE);
+        return simple || reverse;
     }
 
     private boolean checkParameters(PathEnds routers, vLink link) {
@@ -166,20 +237,15 @@ public class Heuristic {
                 && routers.getSecond().checkParameters((link.getTarget()));
         boolean reverse = routers.getFirst().checkParameters(link.getTarget())
                 && routers.getSecond().checkParameters(link.getSource());
-        if (simple && !reverse)
+        if (simple && !reverse) {
             routers.setCapability(PathEnds.Capability.SIMPLE);
-        else if (!simple && reverse)
+        }
+        else if (!simple && reverse) {
             routers.setCapability(PathEnds.Capability.REVERSE);
+        }
+        if (link.getSource().getName().equals("V7") || link.getTarget().getName().equals("V7"))
+            System.out.println();
         return simple || reverse;
-//		System.out.println("		CHECK");
-//		System.out.println(String.format("%s -> %s : %b", routers.getSource(), link.getRouter(0), routers.getSource().checkParameters(((vRouter) link.getRouter(0)))));
-//		System.out.println(String.format("%s -> %s : %b", routers.getTarget(), link.getRouter(1), routers.getTarget().checkParameters(((vRouter) link.getRouter(1)))));
-//		System.out.println(String.format("%s -> %s : %b", routers.getSource(), link.getRouter(1), routers.getSource().checkParameters(((vRouter) link.getRouter(1)))));
-//		System.out.println(String.format("%s -> %s : %b", routers.getTarget(), link.getRouter(0), routers.getTarget().checkParameters(((vRouter) link.getRouter(0)))));
-//		return (routers.getSource().checkParameters(((vRouter) link.getRouter(0)))
-//				&& routers.getTarget().checkParameters(((vRouter) link.getRouter(1))))
-//				|| (routers.getSource().checkParameters((vRouter) link.getRouter(1))
-//				&& routers.getTarget().checkParameters((vRouter) link.getRouter(0)));
     }
 
 }

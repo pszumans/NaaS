@@ -103,6 +103,8 @@ public class Path extends GraphWalk<pRouter, pLink> {
 //		getEdgeList().forEach(l -> l.removeRequest(request));
 		for (pLink l : getEdgeList()) {
 			addedCapacity += l.removeRequest(request);
+			if (Heuristic.WEIGHTABLE_LINKS)
+			l.updateWeight();
 		}
 		getStartVertex().removeRequest(request);
 		getEndVertex().removeRequest(request);

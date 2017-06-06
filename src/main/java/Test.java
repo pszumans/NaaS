@@ -13,5 +13,7 @@ public class Test {
         network.serveRequests();
         new GraphVisualisation(network).start();
         System.out.println(network.getUsedCapacity());
+        System.out.println(network.getMaxSubstrateCapacity());
+        System.out.println(Network.locations);
     }
 }

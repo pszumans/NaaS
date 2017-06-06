@@ -29,7 +29,8 @@ public class GraphVisualisation extends JApplet {
     {
         JFrame frame = new JFrame();
         frame.getContentPane().add(this);
-        frame.setTitle("Network Visualisation");
+//        frame.setTitle("Network Visualisation");
+        frame.setTitle(String.format("Network Visualisation [Y=%d, aux=%d]", ((Network) graph).getUsedCapacity(), ((Network) graph).getMaxSubstrateCapacity()));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);

@@ -9,6 +9,9 @@ public class PathsComparator implements Comparator<Path> {
     public int compare(Path p1, Path p2) {
         return p1.getWeight() > p2.getWeight() ? 1
                 : p1.getWeight() < p2.getWeight() ? -1
-                : 0;
+                :
+//                0
+                new PathEndsComparator().compare(p1,p2)
+                ;
     }
 }

@@ -96,6 +96,7 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     }
 
     public int removeRequest(int request) {
+        if (!requests.containsKey(request)) return 0;
         int capacity = requests.get(request);
         addCapacity(capacity);
         requests.remove(request);

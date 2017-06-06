@@ -150,15 +150,20 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         removeMemory(memory);
         requests.put(request, Arrays.asList(power, memory));
         vRouters.put(request, router);
+        if (Heuristic.RESTORABLE_LOCATION)
+        Network.downdateLocation(location, router.getPower() + router.getMemory());
     }
 
     public void removeRequest(int request) {
+        if (!requests.containsKey(request)) return;
         int power = requests.get(request).get(0);
         int memory = requests.get(request).get(1);
         addPower(power);
         addMemory(memory);
         requests.remove(request);
         vRouters.remove(request);
+        if (Heuristic.RESTORABLE_LOCATION)
+        Network.updateLocation(location, power + memory);
     }
 
     public boolean isAllocated(vRouter router) {

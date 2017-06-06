@@ -82,6 +82,7 @@ public class ParserOPL {
             int memory = sc.nextInt();
             int location = sc.nextInt();
             network.addVertex(new pRouter(name, power, memory, location));
+            network.addLocation(location, power + memory);
         }
     }
 

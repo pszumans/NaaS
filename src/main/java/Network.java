@@ -43,17 +43,20 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
 	private List<PathEnds> paths;
 	private List<Request> requests;
+	public static Map<Integer, Integer> locations;
 
     public Network() {
         super(pLink.class);
         requests = new ArrayList<>();
+        locations = new HashMap<>();
         usedCapacity = 0;
     }
 
     public Network(List<Request> requests) {
         super(pLink.class);
         this.requests = requests;
-        usedCapacity = 0;
+		locations = new HashMap<>();
+		usedCapacity = 0;
     }
 
 	public Network(SimpleWeightedGraph<pRouter, pLink> graph, List<Request> requests) {
@@ -105,7 +108,7 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 	}
 
 	public void serveRequests() {
-		new Heuristic(this).solve();
+        System.out.println("TIME: " + new Heuristic(this).solve());
 	}
 
 	public List<PathEnds> getActualPaths() {
@@ -129,12 +132,14 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
                     pRouter r1 = routersList.get(i);
                     pRouter r2 = routersList.get(j);
                     PathEnds key = new PathEnds(r1, r2);
-					key.setPaths(shortestPaths.getPaths(r1, r2)
+//                    System.out.println("R1: " + r1 + " R2: " + r2 + " ; " + shortestPaths.getPaths(r1, r2).get(1));
+                    key.setPaths(shortestPaths.getPaths(r1, r2)
 							.stream()
 							.map(p -> new Path(p.getGraph(), p.getStartVertex(), p.getEndVertex(), p.getVertexList(), p.getEdgeList(), p.getWeight()))
 							.collect(Collectors.toList()));
 					paths.add(key);
-					Path.resetCounter();
+//                    key.getPaths().forEach(p -> System.out.println(p.getEdgeList()));
+                    Path.resetCounter();
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -194,4 +199,20 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
     public void removeVertexSetListener(VertexSetListener vertexSetListener) {
 
     }
+
+	public void addLocation(int location, int value) {
+		if (locations.containsKey(location))
+			value += locations.get(location);
+		locations.put(location, value);
+	}
+
+	public static void updateLocation(int location, int value) {
+		value += locations.get(location);
+		locations.put(location, value);
+	}
+
+	public static void downdateLocation(int location, int value) {
+		value = locations.get(location) - value;
+		locations.put(location, value);
+	}
 }
