@@ -85,13 +85,14 @@ public class vRouter extends Router {
     }
 
     private void randomLocations() {
-        locations = new ArrayList<>();
+        Set<Integer> locations = new HashSet<>();
         L = new Random().nextInt(LOC_MAX) + 1;
         int location;
-        for (int l = 0; l < L; l++) {
-            location = new Random().nextInt(L) + 1;
+        while (locations.size() < L) {
+            location = new Random().nextInt(LOC_MAX) + 1;
             locations.add(location);
         }
+        this.locations = new ArrayList<>(locations);
     }
 
     private void nearLocations(int location) {
@@ -151,6 +152,6 @@ public class vRouter extends Router {
 
     @Override
     public String toOPL() {
-        return String.format("%s %s>\n", super.toOPL(), locations.toString().replace("["," { ").replace("]"," } "));
+        return String.format("%s %s>\n", super.toOPL(), locations.toString().replace("["," { ").replace("]"," } ").replace(",",""));
     }
 }

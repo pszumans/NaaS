@@ -2,8 +2,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class pLink extends Link implements Comparable<pLink>, Visualisable {
 
@@ -38,15 +37,15 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
         COUNTER = 0;
     }
 
-    public void setVLinks(Map<Integer, vLink> vLinks) {
+    public void setVLinks(Map<Integer, List<vLink>> vLinks) {
         this.vLinks = vLinks;
     }
 
-    public Map<Integer, vLink> getVLinks() {
+    public Map<Integer, List<vLink>> getVLinks() {
         return vLinks;
     }
 
-    private Map<Integer, vLink> vLinks;
+    private Map<Integer, List<vLink>> vLinks;
 
     public pLink() {
         super();
@@ -91,8 +90,12 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
             vLinks = new LinkedHashMap<>();
         int capacity = link.getCapacity();
         removeCapacity(capacity);
+        if (requests.containsKey(request))
+            capacity += requests.get(request);
         requests.put(request, capacity);
-        vLinks.put(request, link);
+        if (!vLinks.containsKey(request))
+            vLinks.put(request, new ArrayList<>());
+        vLinks.get(request).add(link);
     }
 
     public int removeRequest(int request) {
@@ -115,7 +118,7 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     }
 
     @JsonCreator
-    public static pLink JsonParser(@JsonProperty("S") pRouter source, @JsonProperty("T") pRouter target, @JsonProperty("C") int capacity, @JsonProperty("vLinks") Map<Integer, vLink> vLinks) {
+    public static pLink JsonParser(@JsonProperty("S") pRouter source, @JsonProperty("T") pRouter target, @JsonProperty("C") int capacity, @JsonProperty("vLinks") Map<Integer, List<vLink>> vLinks) {
         pLink link = new pLink();
         link.setCapacity(capacity);
         link.assign(source, target);
@@ -132,13 +135,15 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     private String getVLinksText() {
         StringBuilder sb = new StringBuilder("\n");
         sb.append("[");
-        vLinks.entrySet().forEach(e ->
-                sb.append(e.getKey())
-                        .append(":")
-                        .append(e.getValue().getName().replace(" ", "-"))
-                        .append("(")
-                        .append(e.getValue().getCapacity())
-                        .append("),\n"));
+        vLinks.entrySet().forEach(e -> {
+                    sb.append(e.getKey()).append(":");
+                    e.getValue().forEach(l -> sb
+                            .append(l.getName().replace(" ", "-"))
+                            .append("(")
+                            .append(l.getCapacity())
+                            .append("),\n"));
+                }
+        );
         sb.setLength(sb.length() - 2);
 //        sb.deleteCharAt(sb.length() - 2);
         sb.append("]");

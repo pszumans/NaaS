@@ -144,6 +144,20 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
             vRouters = new LinkedHashMap<>();
         if (vRouters.containsValue(router))
             return;
+        if (!router.getLocations().contains(location))
+            try {
+                throw new WrongLocationException(getVisualText() + " --> " + request + ":" + router);
+            } catch (WrongLocationException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        if (vRouters.containsKey(request))
+            try {
+                throw new RequestAllocatedException(getVisualText() + " TRY: " + request + ":" + router);
+            } catch (RequestAllocatedException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         int power = router.getPower();
         int memory = router.getMemory();
         removePower(power);

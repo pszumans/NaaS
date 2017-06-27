@@ -1,13 +1,6 @@
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-//import ilog.concert.IloException;
-import org.jgrapht.graph.SimpleGraph;
+import java.io.IOException;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.Map;
+//import ilog.concert.IloException;
 
 /**
  * Created by Szuman on 17.03.2017.
@@ -108,6 +101,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String filename = "C:\\Users\\Szuman\\Desktop\\NaaS\\NaaS.dat";
-        new Test(filename).run();
+//        String filemon = "C:\\Users\\Szuman\\Desktop\\NaaS\\NaaSa.dat";
+        new Test(filename)
+//                .seq();
+                .run();
+//        Parser p = new Parser(filename);
+//        p.parse();
+//        System.out.println(p.getGraph());
+//        new WriterOPL(filemon, p.getGraph()).writeOPL();
     }
 }

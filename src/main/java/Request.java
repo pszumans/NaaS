@@ -1,14 +1,11 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import org.jgrapht.ListenableGraph;
 import org.jgrapht.VertexFactory;
-import org.jgrapht.event.GraphListener;
-import org.jgrapht.event.VertexSetListener;
 import org.jgrapht.generate.GnmRandomGraphGenerator;
 import org.jgrapht.graph.SimpleGraph;
 
-import java.util.*;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Request extends SimpleGraph {
 
@@ -59,9 +56,9 @@ public class Request extends SimpleGraph {
             return router;
         });
         randomGraphGenerator.generateGraph(request, vertexFactory, null);
-//        request.setLinks(new TreeSet<>(request.edgeSet()));
-        request.setLinks(request.edgeSet());
-//        Collections.sort(request.getLinks());
+        request.edgeSet().forEach(l -> ((vLink) l).randomize());
+        request.setLinks(new TreeSet<>((Set<vLink>)request.edgeSet()));
+//        request.setLinks(request.edgeSet());
         return request;
     }
 

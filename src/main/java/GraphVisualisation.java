@@ -1,12 +1,18 @@
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.view.mxGraph;
 import org.jgrapht.Graph;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphXAdapter;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Szuman on 01.04.2017.
@@ -30,10 +36,41 @@ public class GraphVisualisation extends JApplet {
         JFrame frame = new JFrame();
         frame.getContentPane().add(this);
 //        frame.setTitle("Network Visualisation");
-        frame.setTitle(String.format("Network Visualisation [Y=%d, aux=%d]", ((Network) graph).getUsedCapacity(), ((Network) graph).getMaxSubstrateCapacity()));
+        frame.setTitle(String.format("Network Visualisation [Y=%d, Zmin=%d, t=%dms]", ((Network) graph).getUsedCapacity(), ((Network) graph).getMaxSubstrateCapacity(), Heuristic.TIME));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public void saveToFile(String filename) {
+//        setSize(getPreferredSize());
+//        layoutComponent(this);
+//        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TRANSLUCENT);
+//        CellRendererPane crp = new CellRendererPane();
+//        crp.add(this);
+//        crp.paintComponent(img.createGraphics(), this, crp, getBounds());
+
+        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TRANSLUCENT);
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        paintAll(g2d);
+
+        try {
+            ImageIO.write(img, "png", new File(filename));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static void layoutComponent(Component c) {
+        synchronized (c.getTreeLock()) {
+            c.doLayout();
+            if (c instanceof Container) {
+                for (Component child : ((Container) c).getComponents()) {
+                    layoutComponent(child);
+                }
+            }
+        }
     }
 
     /**

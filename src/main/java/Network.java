@@ -150,7 +150,7 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 	public void parseServedRequests(String vR, String vL) throws IOException {
 		ObjectMapper om = new ObjectMapper();
 		Map<String, Map<Integer, vRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
-		Map<String, Map<Integer, vLink>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
+		Map<String, Map<Integer, List<vLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
 		vRouters.entrySet().forEach(r -> {
 			pRouter router = (pRouter) Parser.getRouterByName(this, r.getKey());
 			if (router != null)

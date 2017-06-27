@@ -1,9 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.org.apache.regexp.internal.RE;
-import org.jgrapht.graph.SimpleGraph;
 
 import java.util.Random;
 
@@ -70,7 +66,11 @@ public class vLink extends Link implements Comparable<vLink> {
 
     @Override
     public int compareTo(vLink l) {
-        return getCapacity() - l.getCapacity();
+        return
+//                l.getCapacity() - //malejąco
+                getCapacity()
+                - l.getCapacity() //rosnąco
+        ;
     }
 
     @JsonCreator
@@ -87,4 +87,8 @@ public class vLink extends Link implements Comparable<vLink> {
         requestIndex = request;
     }
 
+    public void randomize() {
+        setName();
+        setRandomCapacity();
+    }
 }

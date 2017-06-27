@@ -24,24 +24,36 @@ public class PathEnds extends Pair<pRouter, pRouter> {
 
     private List<Path> paths;
 
-    public enum Capability {BOTH, SIMPLE, REVERSE}
-    private Capability capability;
+    public enum Direction {BOTH, SIMPLE, REVERSE}
+    private Direction direction;
+
     public PathEnds(pRouter r1, pRouter r2) {
         super(r1, r2);
-        capability = Capability.BOTH;
+        direction = Direction.BOTH;
     }
 
-    public Capability getCapability() {
-        return capability;
+    public PathEnds(PathEnds pathEnds) {
+        this(pathEnds.getFirst(), pathEnds.getSecond());
+        paths = pathEnds.getPaths();
     }
 
-    public void setCapability(Capability capability) {
-        this.capability = capability;
-        if (capability == Capability.REVERSE)
-            paths.forEach(p -> p.setDirection(Path.Direction.REVERSE));
+    public void restoreDirection() {
+        direction = Direction.BOTH;
+        paths.forEach(p -> p.setDirection(Direction.BOTH));
     }
 
-    public void setCapability(vLink link, Map<vRouter, pRouter> list) {
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+        if (direction != Direction.BOTH)
+//        if (direction == Direction.REVERSE)
+            paths.forEach(p -> p.setDirection(direction));
+    }
+
+    public void setDirection(vLink link, Map<vRouter, pRouter> list) {
 //        boolean simple = list.contains(first);
 //        boolean reverse = list.contains(second);
         pRouter r1 = list.get(link.getSource());
@@ -49,10 +61,9 @@ public class PathEnds extends Pair<pRouter, pRouter> {
         boolean simple = r1 != null ? r1.equals(first) : false || r2 != null ? r2.equals(second) : false;
         boolean reverse = r1 != null ? r1.equals(second) : false || r2 != null ? r2.equals(first) : false;
         if (simple && !reverse)
-            capability = Capability.SIMPLE;
+            setDirection(Direction.SIMPLE);
         else if (!simple && reverse) {
-            capability = Capability.REVERSE;
-            paths.forEach(p -> p.setDirection(Path.Direction.REVERSE));
+            setDirection(Direction.REVERSE);
         }
     }
 

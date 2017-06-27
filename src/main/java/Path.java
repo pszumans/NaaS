@@ -15,28 +15,28 @@ public class Path extends GraphWalk<pRouter, pLink> {
 		return sb.toString();
 	}
 
-	public enum Direction {SIMPLE, REVERSE;};
-	private Direction direction;
+//	public enum Direction {SIMPLE, REVERSE, BOTH}
+	private PathEnds.Direction direction;
 
 	public Path(Graph<pRouter, pLink> graph, List<pRouter> vertexList, double weight) {
 		super(graph, vertexList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
-		direction = Direction.SIMPLE;
+		direction = PathEnds.Direction.BOTH;
 	}
 
 	public Path(Graph<pRouter, pLink> graph, pRouter startVertex, pRouter endVertex, List<pLink> edgeList, double weight) {
 		super(graph, startVertex, endVertex, edgeList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
-		direction = Direction.SIMPLE;
+		direction = PathEnds.Direction.BOTH;
 	}
 
 	public Path(Graph<pRouter, pLink> graph, pRouter startVertex, pRouter endVertex, List<pRouter> vertexList, List<pLink> edgeList, double weight) {
 		super(graph, startVertex, endVertex, vertexList, edgeList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
-		direction = Direction.SIMPLE;
+		direction = PathEnds.Direction.BOTH;
 	}
 
 	public int getLeastCapacity() {
@@ -64,17 +64,17 @@ public class Path extends GraphWalk<pRouter, pLink> {
 		this.index = index;
 	}
 
-	public Direction getDirection() {
+	public PathEnds.Direction getDirection() {
 		return direction;
 	}
 
-	public void setDirection(Direction direction) {
+	public void setDirection(PathEnds.Direction direction) {
 		this.direction = direction;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s %s %d", getSource().getName(), getTarget().getName(), index, getLeastCapacity());
+		return String.format("%s %s %d %d", getSource().getName(), getTarget().getName(), index, getLeastCapacity());
 	}
 
 	public void count() {
@@ -92,10 +92,21 @@ public class Path extends GraphWalk<pRouter, pLink> {
 //			addedCapacity += link.getCapacity();
 //		}
 //		link.getRouters().forEach(vR -> {
+		if (direction == PathEnds.Direction.BOTH)
+			checkParameters(link);
 		getSource().serveRequest(request, link.getSource());
 		getTarget().serveRequest(request, link.getTarget());
 		return link.getCapacity() * getEdgeList().size();
 //			});
+	}
+
+	private void checkParameters(vLink link) {
+	    int first = link.getSource().getPower() + link.getSource().getMemory();
+	    int second = link.getTarget().getPower() + link.getTarget().getMemory();
+		boolean reverse = Network.locations.get(getSource().getLocation()) < Network.locations.get(getTarget().getLocation())
+                && first < second;
+		if (reverse)
+			setDirection(PathEnds.Direction.REVERSE);
 	}
 
 	public int releaseRequest(int request) {
@@ -112,10 +123,10 @@ public class Path extends GraphWalk<pRouter, pLink> {
 	}
 
 	public pRouter getSource() {
-		return direction.equals(Direction.SIMPLE) ? getStartVertex() : getEndVertex();
+		return direction.equals(PathEnds.Direction.SIMPLE) || direction.equals(PathEnds.Direction.BOTH) ? getStartVertex() : getEndVertex();
 	}
 
 	public pRouter getTarget() {
-		return direction.equals(Direction.SIMPLE) ? getEndVertex() : getStartVertex();
+		return direction.equals(PathEnds.Direction.SIMPLE) || direction.equals(PathEnds.Direction.BOTH) ? getEndVertex() : getStartVertex();
 	}
 }
