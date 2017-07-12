@@ -8,10 +8,18 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
     private int location; // geographical location
     private int substratePower = power;
     private int substrateMemory = memory;
+    private Network network;
 
-    public pRouter(String name, int B, int M, int[] L) {
-        super(name, B, M, L);
+    public Network getNetwork() {
+        return network;
     }
+
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+    //    public pRouter(String name, int B, int M, int[] L) {
+//        super(name, B, M, L);
+//    }
 
     @Override
     public String getParam(int i) {
@@ -44,6 +52,11 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         location = Lw;
         substratePower = power;
         substrateMemory = memory;
+    }
+
+    public pRouter(String name, int Bw, int Mw, int Lw, Network network) {
+        this(name, Bw, Mw, Lw);
+        this.network = network;
     }
 
     public pRouter(String name) {
@@ -165,7 +178,7 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         requests.put(request, Arrays.asList(power, memory));
         vRouters.put(request, router);
         if (Heuristic.RESTORABLE_LOCATION)
-        Network.downdateLocation(location, router.getPower() + router.getMemory());
+        network.downdateLocation(location, router.getPower() + router.getMemory());
     }
 
     public void removeRequest(int request) {
@@ -177,7 +190,7 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         requests.remove(request);
         vRouters.remove(request);
         if (Heuristic.RESTORABLE_LOCATION)
-        Network.updateLocation(location, power + memory);
+        network.updateLocation(location, power + memory);
     }
 
     public boolean isAllocated(vRouter router) {
@@ -203,7 +216,7 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
 
 
     @JsonCreator
-    public static pRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("vRouters") Map<Integer,vRouter> vRouters, @JsonProperty("L") int... L) {
+    public static pRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("vRouters") Map<Integer,vRouter> vRouters, @JsonProperty("L") int L) {
         pRouter router = new pRouter(name, B, M, L);
         router.setVRouters(vRouters);
         return router;
@@ -232,5 +245,9 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
     @Override
     public String toOPL() {
         return String.format("%s %d>\n", super.toOPL(), location);
+    }
+
+    public String toOPL(boolean isFull) {
+        return String.format("<%s %d %d %d>\n", name, isFull ? power : substratePower, isFull ? memory : substrateMemory, location);
     }
 }

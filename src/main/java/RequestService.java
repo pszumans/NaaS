@@ -1,5 +1,10 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class RequestService {
 
@@ -8,28 +13,41 @@ public class RequestService {
     private String reqName;
     private boolean input;
 
-    @JsonCreator
-    public RequestService(@JsonProperty("request") Request request) {
+    public RequestService(Request request) {
         this.request = request;
         input = true;
     }
 
-    @JsonCreator
-    public RequestService(@JsonProperty("numbers") int[] numbers) {
+    public RequestService(int... numbers) {
         this.request = Request.getRandomRequest(numbers[0], numbers[1]);
         input = true;
     }
 
-    @JsonCreator
-    public RequestService(@JsonProperty("index") int reqIndex) {
+    public RequestService(int reqIndex) {
         this.reqIndex = reqIndex;
         input = false;
     }
 
-    @JsonCreator
-    public RequestService(@JsonProperty("name") String reqName) {
+    public RequestService(String reqName) {
         this.reqName = reqName;
         this.input = false;
+    }
+
+    @JsonCreator
+    public static RequestService JsonParser(@JsonProperty("input") boolean input, @JsonProperty("data") Object data) {
+        if (input) {
+            if (data instanceof LinkedHashMap) {
+                return new RequestService(new ObjectMapper().convertValue(data, Request.class));
+            } else if (data instanceof ArrayList)
+                return new RequestService(Request.getRandomRequest(((ArrayList<Integer>) data).get(0), ((ArrayList<Integer>) data).get(1)));
+        }
+        else
+            if (data instanceof Integer) {
+                return new RequestService((int) data);
+            } else if (data instanceof String) {
+                return new RequestService(data.toString());
+            }
+            return null;
     }
 
     public Request getRequest() {

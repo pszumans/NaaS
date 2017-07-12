@@ -49,21 +49,21 @@ public class ParserOPL {
 //            if (arePaths)
 //                break;
 //            if (
-                    sc.hasNext()) {
-                text = sc.next();
+                sc.hasNext()) {
+            text = sc.next();
 //                System.out.println("TEXT: " + text);
-                if (text.equals("Vw"))
-                    parseRouters();
-                else if (text.equals("Ee"))
-                    parseLinks();
-                else if (text.equals("Vv"))
-                    parseVRouters();
-                else if (text.equals("Ed"))
-                    parseVLinks();
-                else if (sc.hasNextLine())
+            if (text.equals("Vw"))
+                parseRouters();
+            else if (text.equals("Ee"))
+                parseLinks();
+            else if (text.equals("Vv"))
+                parseVRouters();
+            else if (text.equals("Ed"))
+                parseVLinks();
+            else if (sc.hasNextLine())
 //                    System.out.println("LINE: " +
-                            sc.nextLine()
-                    ;
+                sc.nextLine()
+                        ;
 //                    );
         }
         sc.close();
@@ -73,8 +73,8 @@ public class ParserOPL {
 
     private void parseRouters() {
 //        System.out.println("SPACE: " +
-                sc.next()
-                ;
+        sc.next()
+        ;
 //        );
         while (!sc.next().equals("}")) {
             String name = sc.next();

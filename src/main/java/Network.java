@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -43,7 +44,38 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
 	private List<PathEnds> paths;
 	private List<Request> requests;
-	public static Map<Integer, Integer> locations;
+
+	private Heuristic heuristic;
+
+	public int getSolverTime() {
+		return solverTime;
+	}
+
+	public void setSolverTime(int solverTime) {
+		this.solverTime = solverTime;
+	}
+
+	private int solverTime;
+
+	public List<Request> getServedRequests() {
+		return servedRequests;
+	}
+
+	public void setServedRequests(List<Request> servedRequests) {
+		this.servedRequests = servedRequests;
+	}
+
+	private List<Request> servedRequests;
+
+	public Map<Integer, Integer> getLocations() {
+		return locations;
+	}
+
+	public void setLocations(Map<Integer, Integer> locations) {
+		this.locations = locations;
+	}
+
+	private Map<Integer, Integer> locations;
 
     public Network() {
         super(pLink.class);
@@ -108,7 +140,28 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 	}
 
 	public void serveRequests() {
-        System.out.println("TIME: " + new Heuristic(this).solve());
+		if (heuristic == null)
+			heuristic = new Heuristic(this);
+//		solverTime = heuristic.solve();
+        System.out.println("TIME: " + heuristic.solve());
+	}
+
+	public void addServedRequest(Request request) {
+		if (servedRequests == null)
+			servedRequests = new ArrayList<>();
+//		if (isServed) {
+		requests.remove(request);
+		request.setServed(true);
+		servedRequests.add(request);
+//		}
+	}
+
+	public void addRequestService(RequestService rs) {
+		if (rs.isInput())
+			requests.add(rs.getRequest());
+		else
+			heuristic.releaseRequest(rs.getReqIndex());
+
 	}
 
 	public List<PathEnds> getActualPaths() {
@@ -206,12 +259,12 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 		locations.put(location, value);
 	}
 
-	public static void updateLocation(int location, int value) {
+	public void updateLocation(int location, int value) {
 		value += locations.get(location);
 		locations.put(location, value);
 	}
 
-	public static void downdateLocation(int location, int value) {
+	public void downdateLocation(int location, int value) {
 		value = locations.get(location) - value;
 		locations.put(location, value);
 	}

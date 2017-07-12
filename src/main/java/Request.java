@@ -24,6 +24,11 @@ public class Request extends SimpleGraph {
     private boolean isServed;
     private Set<vLink> links;
 
+    public Request(Request request) {
+        this(vLink.class, request.getIndex());
+        links = request.getLinks();
+    }
+
     public Request(Class<? extends vLink> edgeClass) {
 //        this(edgeClass, 0);
         super(edgeClass);

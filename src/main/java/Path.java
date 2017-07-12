@@ -103,8 +103,9 @@ public class Path extends GraphWalk<pRouter, pLink> {
 	private void checkParameters(vLink link) {
 	    int first = link.getSource().getPower() + link.getSource().getMemory();
 	    int second = link.getTarget().getPower() + link.getTarget().getMemory();
-		boolean reverse = Network.locations.get(getSource().getLocation()) < Network.locations.get(getTarget().getLocation())
-                && first < second;
+		boolean reverse = getSource().getNetwork().getLocations().get(getSource().getLocation())
+				< getTarget().getNetwork().getLocations().get(getTarget().getLocation())
+                && first > second;
 		if (reverse)
 			setDirection(PathEnds.Direction.REVERSE);
 	}

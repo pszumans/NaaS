@@ -149,4 +149,8 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
         sb.append("]");
         return sb.toString();
     }
+
+    public String toOPL(boolean isFull) {
+        return String.format("<%s %d>\n", name, isFull ? capacity : substrateCapacity);
+    }
 }
