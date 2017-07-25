@@ -6,9 +6,10 @@ import java.util.Random;
 //@JsonIgnoreProperties({"weight"})
 public class vLink extends Link implements Comparable<vLink> {
 
-//    @JsonIgnore
+    //    @JsonIgnore
 //    double weight;
     private int requestIndex;
+    public static Random random;
 
     public vLink() {
         super();
@@ -43,7 +44,7 @@ public class vLink extends Link implements Comparable<vLink> {
 //				5;
 //				2;
         int factor = diff / (steps - 1);
-        capacity = new Random().nextInt(steps)*factor + min;
+        capacity = ((random != null) ? random : new Random()).nextInt(steps)*factor + min;
     }
 
     @Override
@@ -69,8 +70,8 @@ public class vLink extends Link implements Comparable<vLink> {
         return
 //                l.getCapacity() - //malejąco
                 getCapacity()
-                - l.getCapacity() //rosnąco
-        ;
+                        - l.getCapacity() //rosnąco
+                ;
     }
 
     @JsonCreator
@@ -90,5 +91,9 @@ public class vLink extends Link implements Comparable<vLink> {
     public void randomize() {
         setName();
         setRandomCapacity();
+    }
+
+    public static void setRandom(long seed) {
+        random = new Random(seed);
     }
 }

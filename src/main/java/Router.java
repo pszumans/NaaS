@@ -1,6 +1,8 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+@Getter @Setter
 public abstract class Router implements Serializable {
 
 	protected String name;
@@ -28,35 +31,8 @@ public abstract class Router implements Serializable {
 		locate(L);
 	}
 
-	protected void locate(int... L) {
-	}
-
 	protected Router(String name) {
 		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-//	public void setName(String name) {
-//		this.name = name;
-//	}
-
-	public int getPower() {
-		return power;
-	}
-
-	public void setPower(int power) {
-		this.power = power;
-	}
-
-	public int getMemory() {
-		return memory;
-	}
-
-	public void setMemory(int memory) {
-		this.memory = memory;
 	}
 
 	public String getParam(int i) {
@@ -68,9 +44,12 @@ public abstract class Router implements Serializable {
 		return sb.toString();
 	}
 
+	protected void locate(int... L) {
+	}
+
 	@Override
 	public String toString() {
-		return String.format("%s(B=%d M=%d", name, power, memory);
+		return String.format("%s(%d %d", name, power, memory);
 	}
 
     protected String toOPL() {

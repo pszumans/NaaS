@@ -14,6 +14,8 @@ public class vRouter extends Router {
     private static int LOC_MAX = 6;
     private static int COUNTER = 0;
 
+    private static Random random;
+
     private List<Integer> locations;
     private int requestIndex;
 
@@ -41,24 +43,24 @@ public class vRouter extends Router {
 
     public vRouter() {
         super(
-                "VV" + count(),
-                new Random().nextInt(5)*5 + 40,
-                new Random().nextInt(5)*5 + 40
+                "VV" + ++COUNTER,
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40,// : new Random(SEED),
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40
         );
         randomLocations();
     }
 
     public vRouter(int i) {
         super("VV" + i,
-                new Random().nextInt(5)*5 + 40,
-                new Random().nextInt(5)*5 + 40);
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40,
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40);
         randomLocations();
     }
 
     public vRouter(int i, int loc) {
         super("V" + i,
-                new Random().nextInt(5)*5 + 40,
-                new Random().nextInt(5)*5 + 40);
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40,
+                ((random != null) ? random : new Random()).nextInt(5)*5 + 40);
         nearLocations(loc);
     }
 
@@ -84,12 +86,16 @@ public class vRouter extends Router {
         return ++COUNTER;
     }
 
+    public static void resetCounter() {
+        COUNTER = 0;
+    }
+
     private void randomLocations() {
         Set<Integer> locations = new HashSet<>();
-        L = new Random().nextInt(LOC_MAX) + 1;
+        L = ((random != null) ? random : new Random()).nextInt(LOC_MAX) + 1;
         int location;
         while (locations.size() < L) {
-            location = new Random().nextInt(LOC_MAX) + 1;
+            location = ((random != null) ? random : new Random()).nextInt(LOC_MAX) + 1;
             locations.add(location);
         }
         this.locations = new ArrayList<>(locations);
@@ -97,7 +103,7 @@ public class vRouter extends Router {
 
     private void nearLocations(int location) {
         locations = new ArrayList<>();
-        L = new Random().nextInt(LOC_MAX) + 1;
+        L = ((random != null) ? random : new Random()).nextInt(LOC_MAX) + 1;
         for (int l = 0; l < L; l++) {
             locations.add(location);
             if (++location > LOC_MAX)
@@ -138,7 +144,7 @@ public class vRouter extends Router {
 
     @Override
     public String toString() {
-        return super.toString() + " L=" + locations + ")";
+        return super.toString() + " " + locations + ")";
     }
 
     @JsonCreator
@@ -153,5 +159,9 @@ public class vRouter extends Router {
     @Override
     public String toOPL() {
         return String.format("%s %s>\n", super.toOPL(), locations.toString().replace("["," { ").replace("]"," } ").replace(",",""));
+    }
+
+    public static void setRandom(long seed) {
+        random = new Random(seed);
     }
 }

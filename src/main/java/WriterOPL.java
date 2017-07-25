@@ -5,21 +5,16 @@ import java.util.List;
 /**
  * Created by Szuman on 16.05.2017.
  */
-public class WriterOPL extends PrintWriter {
-
-    private final String SETS[] = {"Vw", "Ee"};
-    private final String vSETS[] = {"V", "Vv", "E", "Ed"};
-
-    private final String PARAMS[] = {"Bw", "Mw", "Lw"};
-    private final String vPARAMS[] = {"Bv", "Mv", "L", "Lv"};
-
-    private final String CAPACITY = "Ce";
-    private final String vCAPACITY = "Cd";
+public class WriterOPL {
 
     private Network network;
+    private PrintWriter pw;
+    private StringBuilder dataText;
 
-    public void setRequests(List<Request> requests) {
-        this.requests = requests;
+    private int cnt = 0;
+
+    public int getCnt() {
+        return cnt;
     }
 
     private List<Request> requests;
@@ -28,17 +23,34 @@ public class WriterOPL extends PrintWriter {
         this.network = network;
     }
 
+    public WriterOPL(Network network) {
+        this.network = network;
+        requests = network.getRequests();
+    }
+
     public WriterOPL(String filename, Network network) throws IOException {
         this(filename, false);
         this.network = network;
+        requests = network.getRequests();
     }
 
     public WriterOPL(String filename, boolean append) throws IOException {
-        super(new BufferedWriter(new FileWriter(new File(filename), append)));
+        pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename), append)));
     }
 
     public WriterOPL(String filename) throws IOException {
-        super(new BufferedWriter(new FileWriter(new File(filename))));
+        pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename))));
+    }
+
+    public void write(String s) {
+        if (pw == null)
+            dataText.append(s);
+        else
+            pw.write(s);
+    }
+
+    public String getDataString() {
+        return dataText.toString();
     }
 
     public void writeLn(String text) {
@@ -77,13 +89,14 @@ public class WriterOPL extends PrintWriter {
     }
 
     private void writeRequestsSize() {
-        write("R = " + network.getRequests().size());
+        write("R = " + requests.size());
         write(";\n\n");
     }
 
+
     private void writeVRouters() {
         write("vRouters = [ ");
-        network.getRequests().forEach(req -> {
+        requests.forEach(req -> {
             write("{ ");
             req.vertexSet().forEach(r -> write(((Router) r).getName() + " "));
             write(" }\n");
@@ -94,7 +107,7 @@ public class WriterOPL extends PrintWriter {
 
     private void writeVv() {
         write("Vv = [ ");
-        network.getRequests().forEach(req -> {
+        requests.forEach(req -> {
             write("{ ");
             req.vertexSet().forEach(r -> write(((vRouter) r).toOPL() + " "));
             write(" }\n");
@@ -104,7 +117,7 @@ public class WriterOPL extends PrintWriter {
 
     private void writeVLinks() {
         write("Ed = [ ");
-        network.getRequests().forEach(req -> {
+        requests.forEach(req -> {
             write("{ ");
             req.edgeSet().forEach(l -> write(((vLink) l).toOPL() + " "));
             write(" }\n");
@@ -118,7 +131,7 @@ public class WriterOPL extends PrintWriter {
                 pathEnds -> {
                     pathEnds.getPaths().forEach(p -> {
                         int[] temp = new int[network.edgeSet().size()];
-                        write("<" + p + " ");
+                        write("<" + p.toOPL() + " ");
                         p.getEdgeList().forEach(l -> {
 //                            System.out.println(l.getIndex());
                             temp[l.getIndex() - 1] = 1;
@@ -133,59 +146,77 @@ public class WriterOPL extends PrintWriter {
         write(" } ;");
     }
 
-    public void writeOPL() {
+    public WriterOPL writeOPL() {
+        if (pw == null) dataText = new StringBuilder();
         writeRouters();
         writeLinks();
+        writeRequests();
+        writePaths();
+        if (pw != null) pw.close();
+        return this;
+    }
+
+    public WriterOPL writeSeq() {
+        if (pw == null) dataText = new StringBuilder();
+        requests = Arrays.asList(network.getRequests().get(cnt++));
+        writeRouters(false);
+        writeLinks(false);
+        writeRequests();
+        writePaths();
+        if (pw != null) pw.close();
+        return this;
+    }
+
+    public WriterOPL writeSeq(Request request) {
+        if (pw == null) dataText = new StringBuilder();
+        requests = Arrays.asList(request);
+        writeRouters(false);
+        writeLinks(false);
+        writeRequests();
+        writePaths();
+        if (pw != null) pw.close();
+        return this;
+    }
+
+    private void writeRequests() {
         writeRequestsSize();
         writeVRouters();
         writeVLinks();
-        writePaths();
-        close();
     }
-
-    public void writeSeq(int index) {
-        writeRouters(false);
-        writeLinks(false);
-//        writeRequestsSize();
-//        writeVRouters();
-//        writeVLinks();
-        writeRequest(index);
-        writePaths();
-        close();
-    }
-
-    private void writeRequest(int index) {
+/*
+    private void writeRequest(Request request) {
 
 //        write("R = " + network.getRequests().size());
         write("R = 1");
         write(";\n\n");
 
-//        Request req = network.getRequests().get(index - 1);
-        Request req = requests.get(index - 1);
+//        Request request = network.getRequests().get(0);
+//        Request request = requests.get(index - 1);
 
         write("vRouters = [ ");
-//        network.getRequests().forEach(req -> {
+//        network.getRequests().forEach(request -> {
         write("{ ");
-        req.vertexSet().forEach(r -> write(((Router) r).getName() + " "));
+        request.vertexSet().forEach(r -> write(((Router) r).getName() + " "));
         write(" }\n");
 //        });
         write(" ];\n\n");
 
         write("Vv = [ ");
-//        network.getRequests().forEach(req -> {
+//        network.getRequests().forEach(request -> {
         write("{ ");
-        req.vertexSet().forEach(r -> write(((vRouter) r).toOPL() + " "));
+        request.vertexSet().forEach(r -> write(((vRouter) r).toOPL() + " "));
         write(" }\n");
 //        });
         write(" ];\n\n");
 
         write("Ed = [ ");
-//        network.getRequests().forEach(req -> {
+//        network.getRequests().forEach(request -> {
         write("{ ");
-        req.edgeSet().forEach(l -> write(((vLink) l).toOPL() + " "));
+        request.edgeSet().forEach(l -> write(((vLink) l).toOPL() + " "));
         write(" }\n");
 //        });
         write(" ];\n\n");
 
     }
+    */
 }

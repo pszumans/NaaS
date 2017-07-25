@@ -2,11 +2,14 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mxgraph.model.mxIGraphModel;
+import lombok.Getter;
+import lombok.Setter;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+@Getter @Setter
 public abstract class Link extends DefaultWeightedEdge {
 
 	/**
@@ -28,20 +31,8 @@ public abstract class Link extends DefaultWeightedEdge {
 		super();
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public void setName() {
 		this.name = getSource().getName() + " " + getTarget().getName();
-	}
-
-	public int getCapacity() {
-		return capacity;
 	}
 
 	public String getParam() {
@@ -55,10 +46,6 @@ public abstract class Link extends DefaultWeightedEdge {
 	@Override
 	protected double getWeight() {
 		return super.getWeight();
-	}
-
-	public void setCapacity(int capacity) {
-		this.capacity = capacity;
 	}
 
 	@Override

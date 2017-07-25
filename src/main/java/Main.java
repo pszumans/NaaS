@@ -101,13 +101,22 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String filename = "C:\\Users\\Szuman\\Desktop\\NaaS\\NaaS.dat";
+//        String filename = "C:\\Users\\Szuman\\Desktop\\test.dat";
 //        String filemon = "C:\\Users\\Szuman\\Desktop\\NaaS\\NaaSa.dat";
         new Test(filename)
 //                .seq();
-                .run();
+//                .run();
+//                .lambda();
+                .singleLambda();
 //        Parser p = new Parser(filename);
 //        p.parse();
 //        System.out.println(p.getGraph());
 //        new WriterOPL(filemon, p.getGraph()).writeOPL();
+
+//        final Random random = new Random(1);
+//        IntStream.range(0, 10).forEach(i -> System.out.println(random.nextDouble()));
+//        System.out.println("------NEXT");
+//        final Random random1 = new Random(1);
+//        IntStream.range(0, 10).forEach(i -> System.out.println(random1.nextDouble()));
     }
 }

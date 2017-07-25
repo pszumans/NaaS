@@ -1,3 +1,4 @@
+import lombok.Getter;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.io.BufferedReader;
@@ -11,16 +12,13 @@ import java.util.Scanner;
 /**
  * Created by Szuman on 11.05.2017.
  */
+@Getter
 public class ParserOPL {
 
     private final String[] PHYSICAL = {"Vw", "Ee"};
     private final String[] VIRTUAL = {"Vv", "Ed"};
 
     private Scanner sc;
-
-    public Network getNetwork() {
-        return network;
-    }
 
     private Network network;
     private List<Request> requests;
@@ -81,8 +79,9 @@ public class ParserOPL {
             int power = sc.nextInt();
             int memory = sc.nextInt();
             int location = sc.nextInt();
-            network.addVertex(new pRouter(name, power, memory, location));
-            network.addLocation(location, power + memory);
+            network.addVertex(new pRouter(name, power, memory, location, network));
+//            network.addLocation(location, power + memory);
+            network.addLocation(location, power, memory);
         }
     }
 

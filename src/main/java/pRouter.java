@@ -1,25 +1,20 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
-public class pRouter extends Router implements Comparable<pRouter>, Visualisable {
+@Getter @Setter
+public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualisable, Locable {
 
     private int location; // geographical location
     private int substratePower = power;
     private int substrateMemory = memory;
     private Network network;
 
-    public Network getNetwork() {
-        return network;
-    }
-
-    public void setNetwork(Network network) {
-        this.network = network;
-    }
-    //    public pRouter(String name, int B, int M, int[] L) {
-//        super(name, B, M, L);
-//    }
+    private Map<Integer, List<Integer>> requests;
+    private Map<Integer, vRouter> vRouters;
 
     @Override
     public String getParam(int i) {
@@ -33,19 +28,11 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         return sb.toString();
     }
 
-    private Map<Integer, List<Integer>> requests;
-
     public void setVRouters(Map<Integer, vRouter> vRouters) {
         vRouters.entrySet().forEach(e ->
                 serveRequest(e.getKey(), e.getValue()));
 //        this.vRouters = vRouters;
     }
-
-    public Map<Integer, vRouter> getVRouters() {
-        return vRouters;
-    }
-
-    private Map<Integer, vRouter> vRouters;
 
     public pRouter(String name, int Bw, int Mw, int Lw) {
         super(name, Bw, Mw);
@@ -105,30 +92,6 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
             }
     }
 
-    public int getSubstratePower() {
-        return substratePower;
-    }
-
-    public void setSubstratePower(int substratePower) {
-        this.substratePower = substratePower;
-    }
-
-    public int getSubstrateMemory() {
-        return substrateMemory;
-    }
-
-    public void setSubstrateMemory(int substrateMemory) {
-        this.substrateMemory = substrateMemory;
-    }
-
-    public int getLocation() {
-        return location;
-    }
-
-    public void setLocation(int location) {
-        this.location = location;
-    }
-
     private boolean checkPower(int Bv) {
         return substratePower >= Bv;
     }
@@ -145,10 +108,10 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         return (checkPower(Bv) && checkMemory(Mv) && checkLocation(Lv));
     }
 
-    @Override
-    public int compareTo(pRouter r) {
-        return r.getSubstratePower() + r.getSubstrateMemory() - getSubstratePower() - getSubstrateMemory();
-    }
+//    @Override
+//    public int compareTo(pRouter r) {
+//        return r.getSubstratePower() + r.getSubstrateMemory() - getSubstratePower() - getSubstrateMemory();
+//    }
 
     public void serveRequest(int request, vRouter router) {
         if (requests == null)
@@ -178,7 +141,8 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         requests.put(request, Arrays.asList(power, memory));
         vRouters.put(request, router);
         if (Heuristic.RESTORABLE_LOCATION)
-        network.downdateLocation(location, router.getPower() + router.getMemory());
+//        network.downdateLocation(location, router.getPower() + router.getMemory());
+        network.getLocations().get(location).downdate(power, memory);
     }
 
     public void removeRequest(int request) {
@@ -190,7 +154,8 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         requests.remove(request);
         vRouters.remove(request);
         if (Heuristic.RESTORABLE_LOCATION)
-        network.updateLocation(location, power + memory);
+//        network.updateLocation(location, power + memory);
+        network.getLocations().get(location).update(power, memory);
     }
 
     public boolean isAllocated(vRouter router) {
@@ -211,7 +176,7 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
 
     @Override
     public String toString() {
-        return String.format("%s(B=%d, M=%d, L=%d)", name, substratePower, substrateMemory, location);
+        return String.format("%s(%d/%d %d/%d %d)", name, substratePower, power, substrateMemory, memory, location);
     }
 
 
@@ -227,7 +192,7 @@ public class pRouter extends Router implements Comparable<pRouter>, Visualisable
         return String.format("%s(%d/%d,%d/%d,%d)%s", name, substratePower, power, substrateMemory, memory, location, (vRouters != null && !vRouters.isEmpty() ? getVRoutersText() : ""));
     }
 
-    public String getVRoutersText() {
+    private String getVRoutersText() {
         StringBuilder sb = new StringBuilder("\n");
         sb.append("[");
         vRouters.entrySet().forEach(e -> sb.append(e.getKey()).append(":").append(e.getValue().getName()).append("(")

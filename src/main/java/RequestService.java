@@ -1,11 +1,13 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+@Getter @Setter
 public class RequestService {
 
     private Request request;
@@ -19,7 +21,7 @@ public class RequestService {
     }
 
     public RequestService(int... numbers) {
-        this.request = Request.getRandomRequest(numbers[0], numbers[1]);
+        this.request = Request.getRandom(numbers[0], numbers[1], 0);
         input = true;
     }
 
@@ -39,7 +41,7 @@ public class RequestService {
             if (data instanceof LinkedHashMap) {
                 return new RequestService(new ObjectMapper().convertValue(data, Request.class));
             } else if (data instanceof ArrayList)
-                return new RequestService(Request.getRandomRequest(((ArrayList<Integer>) data).get(0), ((ArrayList<Integer>) data).get(1)));
+                return new RequestService(Request.getRandom(((ArrayList<Integer>) data).get(0), ((ArrayList<Integer>) data).get(1), 0));
         }
         else
             if (data instanceof Integer) {
@@ -48,37 +50,5 @@ public class RequestService {
                 return new RequestService(data.toString());
             }
             return null;
-    }
-
-    public Request getRequest() {
-        return request;
-    }
-
-    public void setRequest(Request request) {
-        this.request = request;
-    }
-
-    public int getReqIndex() {
-        return reqIndex;
-    }
-
-    public void setReqIndex(int reqIndex) {
-        this.reqIndex = reqIndex;
-    }
-
-    public String getReqName() {
-        return reqName;
-    }
-
-    public void setReqName(String reqName) {
-        this.reqName = reqName;
-    }
-
-    public boolean isInput() {
-        return input;
-    }
-
-    public void setInput(boolean input) {
-        this.input = input;
     }
 }

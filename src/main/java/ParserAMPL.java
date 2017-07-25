@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class Parser {
+public class ParserAMPL {
 
     public Network getGraph() {
         return graph;
@@ -42,7 +42,7 @@ public class Parser {
 
     private Scanner sc;
 
-    public Parser(String filename) throws FileNotFoundException {
+    public ParserAMPL(String filename) throws FileNotFoundException {
         sc = new Scanner(new BufferedReader(new FileReader(new File(filename))));
     }
 
@@ -83,9 +83,9 @@ public class Parser {
         sc.nextLine();
 
         if (Arrays.asList(PHYSICAL).contains(dataKey))
-            parseRouters(Arrays.asList(PHYSICAL).indexOf(dataKey), false);
+            ParserAMPLouters(Arrays.asList(PHYSICAL).indexOf(dataKey), false);
         else if (Arrays.asList(VIRTUAL).contains(dataKey))
-            parseRouters(Arrays.asList(VIRTUAL).indexOf(dataKey), true);
+            ParserAMPLouters(Arrays.asList(VIRTUAL).indexOf(dataKey), true);
         else if (dataKey.equals(CAPACITY_KEY))
             parseCapacity(false);
         else if (dataKey.equals(vCAPACITY_KEY))
@@ -123,7 +123,7 @@ public class Parser {
             router.setLocation(param);
     }
 
-    private void parseRouters(int KEY, boolean isVirtual) {
+    private void ParserAMPLouters(int KEY, boolean isVirtual) {
         int cnt = 0;
         int req = -1;
         while (true) {

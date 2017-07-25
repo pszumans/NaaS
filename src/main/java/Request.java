@@ -1,5 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.jgrapht.VertexFactory;
 import org.jgrapht.generate.GnmRandomGraphGenerator;
 import org.jgrapht.graph.SimpleGraph;
@@ -7,20 +9,12 @@ import org.jgrapht.graph.SimpleGraph;
 import java.util.Set;
 import java.util.TreeSet;
 
+@Getter @Setter
 public class Request extends SimpleGraph {
 
     private static int COUNTER = 0;
     private String name;
     private int index;
-
-    public boolean isServed() {
-        return isServed;
-    }
-
-    public void setServed(boolean served) {
-        isServed = served;
-    }
-
     private boolean isServed;
     private Set<vLink> links;
 
@@ -51,11 +45,14 @@ public class Request extends SimpleGraph {
         setName(name);
     }
 
-    public static Request getRandomRequest(int numberOfRouters, int numberOfLinks) {
+    public static Request getRandom(int numberOfRouters, int numberOfLinks, long seed) {
 //        int loc = new Random().nextInt(Router.LOC_MAX) + 1;
 //        int cnt = 0;
         Request request = new Request(vLink.class);
-        GnmRandomGraphGenerator<vRouter, vLink> randomGraphGenerator = new GnmRandomGraphGenerator<>(numberOfRouters, numberOfLinks);
+        GnmRandomGraphGenerator<vRouter, vLink> randomGraphGenerator
+                = (seed == 0)
+                ? new GnmRandomGraphGenerator<>(numberOfRouters, numberOfLinks)
+                : new GnmRandomGraphGenerator<>(numberOfRouters, numberOfLinks, seed);
         VertexFactory<vRouter> vertexFactory = (() -> {
             vRouter router = new vRouter();
             return router;
@@ -71,10 +68,6 @@ public class Request extends SimpleGraph {
         if (links == null)
             links = new TreeSet<>();
         links.add(link);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
@@ -95,25 +88,8 @@ public class Request extends SimpleGraph {
 
     public static void resetCounter() {
         COUNTER = 0;
+        vRouter.resetCounter();
     }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public Set<vLink> getLinks() {
-        return links;
-    }
-
-    public void setLinks(Set<vLink> links) {
-        this.links = links;
-    }
-
-//    public void setWeights() {
 
     public String getRoutersParam(int i) {
         StringBuilder sb = new StringBuilder();
@@ -127,6 +103,7 @@ public class Request extends SimpleGraph {
         return sb.toString();
     }
 
+    @Override
     public String toString() {
         return String.format("%s -> %5b %s", name, isServed, links);
     }

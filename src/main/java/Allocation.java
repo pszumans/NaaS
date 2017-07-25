@@ -1,18 +1,14 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+@Getter @Setter
 public class Allocation {
-
-    public int getUsedCapacity() {
-        return usedCapacity;
-    }
-
-    public void setUsedCapacity(int usedCapacity) {
-        this.usedCapacity = usedCapacity;
-    }
 
     private int reqIndex;
     private List<AllocationSet> allocationMap;
@@ -36,7 +32,7 @@ public class Allocation {
         allocationMap.forEach(s -> {
             s.getPath().setDirection(s.getDirection());
             s.getPath().serveRequest(reqIndex, s.getLink());
-            s.getPath().getEdgeList().forEach(l -> System.out.println("LLL: " + l));
+            System.out.println(s.getLink() + " --> " + s.getPath());
         });
         return usedCapacity;
     }
@@ -46,21 +42,12 @@ public class Allocation {
         return this;
     }
 
+    @Getter
     private class AllocationSet {
 
         private final Path path;
-        private final PathEnds.Direction direction;
         private final vLink link;
-
-        public Path getPath() {
-            return path;
-        }
-        public PathEnds.Direction getDirection() {
-            return direction;
-        }
-        public vLink getLink() {
-            return link;
-        }
+        private final PathEnds.Direction direction;
 
         private AllocationSet(Path path, PathEnds.Direction direction, vLink link) {
             this.path = path;

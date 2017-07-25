@@ -19,6 +19,7 @@ public class PathsComparator implements Comparator<Path> {
                 : p1.getLeastCapacity() < p2.getLeastCapacity() ? -1
                 :
 //                0
+
                 new PathEndsComparator(network).compare(p1,p2)
                 ;
     }

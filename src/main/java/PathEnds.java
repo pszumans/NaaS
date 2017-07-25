@@ -1,3 +1,5 @@
+import lombok.Getter;
+import lombok.Setter;
 import org.jgrapht.alg.util.Pair;
 
 import java.util.List;
@@ -8,23 +10,12 @@ import java.util.stream.Collectors;
 /**
  * Created by Szuman on 20.03.2017.
  */
+@Getter @Setter
 public class PathEnds extends Pair<pRouter, pRouter> {
-
-    public List<Path> getPaths() {
-        return paths;
-    }
-
-    public void setPaths(List<Path> paths) {
-        this.paths = paths;
-    }
-
-    public void addPath(Path path) {
-        paths.add(path);
-    }
 
     private List<Path> paths;
 
-    public enum Direction {BOTH, SIMPLE, REVERSE}
+    public enum Direction {BOTH, SIMPLE, REVERSE;}
     private Direction direction;
 
     public PathEnds(pRouter r1, pRouter r2) {
@@ -42,8 +33,8 @@ public class PathEnds extends Pair<pRouter, pRouter> {
         paths.forEach(p -> p.setDirection(Direction.BOTH));
     }
 
-    public Direction getDirection() {
-        return direction;
+    public void addPath(Path path) {
+        paths.add(path);
     }
 
     public void setDirection(Direction direction) {
@@ -53,19 +44,19 @@ public class PathEnds extends Pair<pRouter, pRouter> {
             paths.forEach(p -> p.setDirection(direction));
     }
 
-    public void setDirection(vLink link, Map<vRouter, pRouter> list) {
-//        boolean simple = list.contains(first);
-//        boolean reverse = list.contains(second);
-        pRouter r1 = list.get(link.getSource());
-        pRouter r2 = list.get(link.getTarget());
-        boolean simple = r1 != null ? r1.equals(first) : false || r2 != null ? r2.equals(second) : false;
-        boolean reverse = r1 != null ? r1.equals(second) : false || r2 != null ? r2.equals(first) : false;
-        if (simple && !reverse)
-            setDirection(Direction.SIMPLE);
-        else if (!simple && reverse) {
-            setDirection(Direction.REVERSE);
-        }
-    }
+//    public void setDirection(vLink link, Map<vRouter, pRouter> list) {
+////        boolean simple = list.contains(first);
+////        boolean reverse = list.contains(second);
+//        pRouter r1 = list.get(link.getSource());
+//        pRouter r2 = list.get(link.getTarget());
+//        boolean simple = r1 != null ? r1.equals(first) : false || r2 != null ? r2.equals(second) : false;
+//        boolean reverse = r1 != null ? r1.equals(second) : false || r2 != null ? r2.equals(first) : false;
+//        if (simple && !reverse)
+//            setDirection(Direction.SIMPLE);
+//        else if (!simple && reverse) {
+//            setDirection(Direction.REVERSE);
+//        }
+//    }
 
     public void filterPaths(Predicate<Path> predicate) {
         paths = paths.stream().filter(predicate).collect(Collectors.toList());

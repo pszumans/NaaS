@@ -1,27 +1,56 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.alg.shortestpath.KShortestPaths;
 import org.jgrapht.event.GraphListener;
 import org.jgrapht.event.VertexSetListener;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+@Getter @Setter
 public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements ListenableGraph {
 
-	public int getUsedCapacity() {
-		return usedCapacity;
-	}
+	private List<Request> requests;
+//	private Heuristic heuristic;
+	private Solver solver;
+	private List<PathEnds> paths;
 
-	public void setUsedCapacity(int usedCapacity) {
-		this.usedCapacity = usedCapacity;
+	private int usedCapacity;
+	private double solverTime;
+
+	private List<Request> servedRequests;
+	private Map<Integer, Location> locations;
+
+	private double serviceRate = 1;
+	private int reqCount;
+	private int servedCount;
+	
+	public Network() {
+        super(pLink.class);
+        requests = new ArrayList<>();
+        locations = new HashMap<>();
+//        usedCapacity = 0;
+    }
+
+    public Network(List<Request> requests) {
+        super(pLink.class);
+        this.requests = requests;
+		locations = new HashMap<>();
+//		usedCapacity = 0;
+    }
+
+    public void setSolver(boolean isHeuristic) {
+		solver = isHeuristic ? new Heuristic(this) :
+				null;
+//				new SolverOPL(this);
 	}
 
 	public void addUsedCapacity(int capacity) {
@@ -31,82 +60,6 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 	public void removeUsedCapacity(int capacity) {
 		usedCapacity -= capacity;
 	}
-
-	private int usedCapacity;
-
-    public List<PathEnds> getPaths() {
-        return paths;
-    }
-
-    public void setPaths(List<PathEnds> paths) {
-        this.paths = paths;
-    }
-
-	private List<PathEnds> paths;
-	private List<Request> requests;
-
-	private Heuristic heuristic;
-
-	public int getSolverTime() {
-		return solverTime;
-	}
-
-	public void setSolverTime(int solverTime) {
-		this.solverTime = solverTime;
-	}
-
-	private int solverTime;
-
-	public List<Request> getServedRequests() {
-		return servedRequests;
-	}
-
-	public void setServedRequests(List<Request> servedRequests) {
-		this.servedRequests = servedRequests;
-	}
-
-	private List<Request> servedRequests;
-
-	public Map<Integer, Integer> getLocations() {
-		return locations;
-	}
-
-	public void setLocations(Map<Integer, Integer> locations) {
-		this.locations = locations;
-	}
-
-	private Map<Integer, Integer> locations;
-
-    public Network() {
-        super(pLink.class);
-        requests = new ArrayList<>();
-        locations = new HashMap<>();
-        usedCapacity = 0;
-    }
-
-    public Network(List<Request> requests) {
-        super(pLink.class);
-        this.requests = requests;
-		locations = new HashMap<>();
-		usedCapacity = 0;
-    }
-
-	public Network(SimpleWeightedGraph<pRouter, pLink> graph, List<Request> requests) {
-		super(pLink.class);
-//		requests.forEach(r -> Collections.sort(r.getLinks()));
-		this.requests = requests;
-	}
-
-	public Network update(List<Request> requests) {
-//        requests.forEach(r -> Collections.sort(r.getLinks()));
-        this.requests = requests;
-        return this;
-    }
-
-    public Network update() {
-//        requests.forEach(r -> Collections.sort(r.getLinks()));
-        return this;
-    }
 
 	public Set<pRouter> getRouters() {
 		return /*NaaSGraph.*/vertexSet();
@@ -127,40 +80,65 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 		return graph;
 	}
 
-	public List<Request> getRequests() {
-		return requests;
-	}
-
-	public void setRequests(List<Request> requests) {
-		this.requests = requests;
-	}
-
 	public void addRequest(Request request){
 		requests.add(request);
 	}
 
+	public void removeRequest(Request request) {
+		requests.remove(request);
+	}
+
+	public boolean isRequestInService(Request request) {
+		return requests.contains(request);
+	}
+
 	public void serveRequests() {
-		if (heuristic == null)
-			heuristic = new Heuristic(this);
-//		solverTime = heuristic.solve();
-        System.out.println("TIME: " + heuristic.solve());
+		if (solver == null)
+			solver = new Heuristic(this);
+		solver.solve();
+		solverTime = solver.getTime();
+//        System.out.println("TIME: " + heuristic.solve());
+	}
+
+	public void serveRequest(Request request) {
+		if (solver == null)
+			solver = new Heuristic(this);
+		reqCount++;
+		if (solver.serveRequest(request)) {
+			servedCount++;
+		}
+		serviceRate = (double) servedCount / reqCount;
+	}
+
+	public void releaseRequest(Request request) {
+		if (solver != null)
+			solver.releaseRequest(request);
+//		requests.remove(request);
 	}
 
 	public void addServedRequest(Request request) {
 		if (servedRequests == null)
 			servedRequests = new ArrayList<>();
 //		if (isServed) {
-		requests.remove(request);
-		request.setServed(true);
+//		requests.remove(request);
+//		request.setServed(true);
 		servedRequests.add(request);
 //		}
+	}
+
+	public void addServedRequest(int req) {
+		if (servedRequests == null)
+			servedRequests = new ArrayList<>();
+		Request request = requests.remove(req);
+		request.setServed(true);
+		servedRequests.add(request);
 	}
 
 	public void addRequestService(RequestService rs) {
 		if (rs.isInput())
 			requests.add(rs.getRequest());
 		else
-			heuristic.releaseRequest(rs.getReqIndex());
+			solver.releaseRequest(rs.getRequest());
 
 	}
 
@@ -169,8 +147,8 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 		return paths;
 	}
 
-//	private void setPaths() {
-	public void setPaths() {
+	private void setPaths() {
+//	public void setPaths() {
 		paths = new ArrayList<>();
 		setPaths(Integer.MAX_VALUE);
 	}
@@ -185,13 +163,11 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
                     pRouter r1 = routersList.get(i);
                     pRouter r2 = routersList.get(j);
                     PathEnds key = new PathEnds(r1, r2);
-//                    System.out.println("R1: " + r1 + " R2: " + r2 + " ; " + shortestPaths.getPaths(r1, r2).get(1));
                     key.setPaths(shortestPaths.getPaths(r1, r2)
 							.stream()
 							.map(p -> new Path(p.getGraph(), p.getStartVertex(), p.getEndVertex(), p.getVertexList(), p.getEdgeList(), p.getWeight()))
 							.collect(Collectors.toList()));
 					paths.add(key);
-//                    key.getPaths().forEach(p -> System.out.println(p.getEdgeList()));
                     Path.resetCounter();
                 }
             }
@@ -205,12 +181,12 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 		Map<String, Map<Integer, vRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
 		Map<String, Map<Integer, List<vLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
 		vRouters.entrySet().forEach(r -> {
-			pRouter router = (pRouter) Parser.getRouterByName(this, r.getKey());
+			pRouter router = (pRouter) ParserAMPL.getRouterByName(this, r.getKey());
 			if (router != null)
 				router.setVRouters(r.getValue());
 		});
 		vLinks.entrySet().forEach(l -> {
-			pLink link = (pLink) Parser.getLinkByName(this, l.getKey());
+			pLink link = (pLink) ParserAMPL.getLinkByName(this, l.getKey());
 			if (link != null)
 				link.setVLinks(l.getValue());
 		});
@@ -253,19 +229,87 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     }
 
-	public void addLocation(int location, int value) {
+	public void addLocation(int location, int power, int memory) {
 		if (locations.containsKey(location))
-			value += locations.get(location);
-		locations.put(location, value);
+			locations.get(location).addValues(power, memory);
+		else
+			locations.put(location, new Location(location, power, memory));
 	}
 
-	public void updateLocation(int location, int value) {
-		value += locations.get(location);
-		locations.put(location, value);
-	}
+	@Getter @Setter
+	public class Location implements Locable {
+		private final int index;
+		private int power;
+		private int memory;
 
-	public void downdateLocation(int location, int value) {
-		value = locations.get(location) - value;
-		locations.put(location, value);
+		private int substratePower;
+		private int substrateMemory;
+
+		public Location(int index, int power, int memory) {
+			this.index = index;
+			this.power = substratePower = power;
+			this.memory = substrateMemory = memory;
+		}
+
+		public void update(int powerToAdd, int memoryToAdd) {
+			substratePower += powerToAdd;
+			substrateMemory += memoryToAdd;
+		}
+
+		public void downdate(int powerToRemove, int memoryToRemove) {
+			substratePower -= powerToRemove;
+			substrateMemory -= memoryToRemove;
+		}
+
+		public void addValues(int power, int memory) {
+			this.power = substratePower += power;
+			this.memory = substrateMemory += memory;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("%d %d/%d %d/%d", index, substratePower, power, substrateMemory, memory);
+		}
+
+		//			this.substrateMemory = substrateMemory;
+		//		public void setSubstrateMemory(int substrateMemory) {
+		//
+		//		}
+		//			return substrateMemory;
+		//		public int getSubstrateMemory() {
+		//
+		//		}
+		//			this.substratePower = substratePower;
+		//		public void setSubstratePower(int substratePower) {
+		//
+		//		}
+		//			return substratePower;
+		//		public int getSubstratePower() {
+		//
+		//		}
+		//			this.memory = memory;
+		//		public void setMemory(int memory) {
+		//
+		//		}
+		//			return memory;
+		//		public int getMemory() {
+		//
+		//		}
+		//			this.power = power;
+		//		public void setPower(int power) {
+		//
+		//		}
+		//			return power;
+		//		public int getPower() {
+		//
+		//		}
+		//			this.index = index;
+		//		public void setIndex(int index) {
+		//
+		//		}
+		//			return index;
+//		public int getIndex() {
+
+//		}
 	}
 }

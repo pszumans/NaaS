@@ -1,21 +1,15 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.*;
 
+@Getter @Setter
 public class pLink extends Link implements Comparable<pLink>, Visualisable {
 
     private static int COUNTER = 0;
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     private int index;
 
     public pLink(pRouter r1, pRouter r2, int capacity, SimpleWeightedGraph graph) {
@@ -28,6 +22,8 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
 
     private int substrateCapacity;
     private Map<Integer, Integer> requests;
+    private Map<Integer, List<vLink>> vLinks;
+
 
     public void count() {
         index = ++COUNTER;
@@ -36,16 +32,6 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     public static void resetCounter() {
         COUNTER = 0;
     }
-
-    public void setVLinks(Map<Integer, List<vLink>> vLinks) {
-        this.vLinks = vLinks;
-    }
-
-    public Map<Integer, List<vLink>> getVLinks() {
-        return vLinks;
-    }
-
-    private Map<Integer, List<vLink>> vLinks;
 
     public pLink() {
         super();
@@ -64,14 +50,6 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
                 e.printStackTrace();
                 System.exit(1);
             }
-    }
-
-    public void setSubstrateCapacity(int substrateCapacity) {
-        this.substrateCapacity = substrateCapacity;
-    }
-
-    public int getSubstrateCapacity() {
-        return substrateCapacity;
     }
 
     public void updateWeight() {
@@ -114,7 +92,7 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
 
     @Override
     public String toString() {
-        return String.format("%s %s %d %s", getSource(), getTarget(), substrateCapacity, (vLinks != null) ? vLinks : "");
+        return String.format("%s %s %d/%d %s", getSource(), getTarget(), substrateCapacity, capacity, (vLinks != null) ? vLinks : "");
     }
 
     @JsonCreator
