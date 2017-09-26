@@ -5,9 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by Szuman on 11.05.2017.
@@ -32,14 +30,17 @@ public class ParserOPL {
         network = new Network(requests);
 
 //        sc.skip("=|\\}|<|>");
-        sc.useDelimiter("\\s*=\\s*|" +
-                "\\s*\\s*\\{\\s*|" +
-                "\\s*<\\s*|" +
-                "\\s*>\\s*|" +
-                "\\s*\\[\\s*|" +
-                "\\s*]\\s*|" +
-                "\\s");
+//        sc.useDelimiter("\\s*=\\s*|" +
+//                "\\s*\\s*\\{\\s*|" +
+//                "\\s*<\\s*|" +
+//                "\\s*>\\s*|" +
+//                "\\s*\\[\\s*|" +
+//                "\\s*]\\s*|" +
+//                "\\s+"
+//        + "|(//.*\\s+)+");
 //        System.out.println(sc.delimiter());
+
+        sc.useDelimiter("(\\s*>?\\s*//.*\\s*)+<?\\s*|\\s*<?\\s*>?\\s+(\\s*=?\\s*\\[?\\s*\\{?\\s*<?\\s*>?\\s*]?\\s*)?");
 
         String text;
         while (
@@ -58,6 +59,8 @@ public class ParserOPL {
                 parseVRouters();
             else if (text.equals("Ed"))
                 parseVLinks();
+            else if (text.equals("Pst"))
+                break;
             else if (sc.hasNextLine())
 //                    System.out.println("LINE: " +
                 sc.nextLine()
@@ -71,14 +74,22 @@ public class ParserOPL {
 
     private void parseRouters() {
 //        System.out.println("SPACE: " +
-        sc.next()
-        ;
+//        sc.next()
+//        ;
 //        );
-        while (!sc.next().equals("}")) {
-            String name = sc.next();
-            int power = sc.nextInt();
-            int memory = sc.nextInt();
-            int location = sc.nextInt();
+        String name;
+        while (!(name = sc.next()).equals("}")) {
+//            name = sc.next();
+            int power = 0;
+            int memory = 0;
+            int location = 0;
+            try {
+                power = sc.nextInt();
+                memory = sc.nextInt();
+                location = sc.nextInt();
+            } catch (java.util.InputMismatchException e) {
+                System.out.println(sc.next());
+            }
             network.addVertex(new pRouter(name, power, memory, location, network));
 //            network.addLocation(location, power + memory);
             network.addLocation(location, power, memory);
@@ -86,9 +97,10 @@ public class ParserOPL {
     }
 
     private void parseLinks() {
-        sc.next();
-        while (!sc.next().equals("}")) {
-            String r1 = sc.next();
+//        sc.next();
+        String r1;
+        while (!(r1 = sc.next()).equals("}")) {
+//            String r1 = sc.next();
             String r2 = sc.next();
             pRouter router1 = (pRouter) getRouterByName(network, r1);
             pRouter router2 = (pRouter) getRouterByName(network, r2);
@@ -100,24 +112,24 @@ public class ParserOPL {
     private void parseVRouters() {
         Request request = new Request(vLink.class);
 //        requests.add(request);
-        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
+//        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
+        String name = sc.next();
         while (true) {
-            String name = sc.next();
 //            System.out.println(name);
             int power = sc.nextInt();
             int memory = sc.nextInt();
-            List<Integer> locations = new ArrayList<>();
+            Set<Integer> locations = new HashSet<>();
             String location;// = sc.next();
             while (!(location = sc.next()).equals("}"))
                 locations.add(Integer.valueOf(location));
             request.addVertex(new vRouter(name, power, memory, locations));
 //            System.out.println(name + power + memory + locations);
-            if (sc.next().equals("}")) {
+            if ((name = sc.next()).equals("}")) {
                 requests.add(request);
-                if (sc.next().equals(";")) {
+                request = new Request(vLink.class);
+                if ((name = sc.next()).equals(";")) {
                     break;
                 }
-                request = new Request(vLink.class);
             }
         }
     }
@@ -125,17 +137,18 @@ public class ParserOPL {
     private void parseVLinks() {
         int i = 0;
         Request request = requests.get(i);
-        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
+//        sc.skip("\\s*=\\s*\\[\\s*\\{\\s*<");
+        String r1 = sc.next();
         while (true) {
-            String r1 = sc.next();
+//            String r1 = sc.next();
             String r2 = sc.next();
 //            System.out.println(r1 + r2);
             vRouter router1 = (vRouter) getRouterByName(request, r1);
             vRouter router2 = (vRouter) getRouterByName(request, r2);
             int capacity = sc.nextInt();
             request.addLink(new vLink(router1, router2, capacity, request));
-            if (sc.next().equals("}")) {
-                if (sc.next().equals(";")) {
+            if ((r1 = sc.next()).equals("}")) {
+                if ((r1 = sc.next()).equals(";")) {
                     break;
                 }
                 request = requests.get(++i);

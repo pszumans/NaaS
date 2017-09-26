@@ -15,8 +15,9 @@ public class PathEnds extends Pair<pRouter, pRouter> {
 
     private List<Path> paths;
 
-    public enum Direction {BOTH, SIMPLE, REVERSE;}
+    public enum Direction {BOTH, SIMPLE, REVERSE}
     private Direction direction;
+    private String name;
 
     public PathEnds(pRouter r1, pRouter r2) {
         super(r1, r2);

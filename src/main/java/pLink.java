@@ -12,6 +12,10 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     private static int COUNTER = 0;
     private int index;
 
+    private int substrateCapacity;
+    private Map<Integer, Integer> requests;
+    private Map<Integer, List<vLink>> vLinks;
+
     public pLink(pRouter r1, pRouter r2, int capacity, SimpleWeightedGraph graph) {
         super(r1, r2, capacity, graph);
         index = ++COUNTER;
@@ -19,11 +23,6 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
         if (Heuristic.WEIGHTABLE_LINKS)
         graph.setEdgeWeight(this, (double) 1 / substrateCapacity); // waga = 1 / przepustowość
     }
-
-    private int substrateCapacity;
-    private Map<Integer, Integer> requests;
-    private Map<Integer, List<vLink>> vLinks;
-
 
     public void count() {
         index = ++COUNTER;
@@ -77,7 +76,7 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     }
 
     public int removeRequest(int request) {
-        if (!requests.containsKey(request)) return 0;
+        if (requests == null || !requests.containsKey(request)) return 0;
         int capacity = requests.get(request);
         addCapacity(capacity);
         requests.remove(request);

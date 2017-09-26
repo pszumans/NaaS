@@ -1,50 +1,45 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Setter;
 
 import java.util.Random;
 
 //@JsonIgnoreProperties({"weight"})
 public class vLink extends Link implements Comparable<vLink> {
 
+    public static boolean BIG_VARIANCE = false;
+
     //    @JsonIgnore
 //    double weight;
-    private int requestIndex;
-    public static Random random;
+    @Setter
+    private int reqIndex;
+    private static Random RANDOM;
 
     public vLink() {
         super();
-//        requestIndex = Request.getCount();
+//        reqIndex = Request.getCount();
     }
 
     @Override
     public String getParam() {
-        return requestIndex + " " + super.getParam();
+        return reqIndex + " " + super.getParam();
     }
 
     public vLink(vRouter r1, vRouter r2, int capacity, Request request) {
         super(r1, r2, capacity, request);
-        requestIndex = request.getIndex();
+        reqIndex = request.getIndex();
     }
 
     public vLink(vRouter r1, vRouter r2, int capacity, Request request, int index) {
         super(r1, r2, capacity, request);
-        requestIndex = index;
+        reqIndex = index;
     }
 
     public void setRandomCapacity() {
-        int avg = 50;
-        int std =
-                12;
-//				40;
-//				10;
-        int min = avg - std;
-        int diff = 2 * std;
-        int steps =
-                9;
-//				5;
-//				2;
-        int factor = diff / (steps - 1);
-        capacity = ((random != null) ? random : new Random()).nextInt(steps)*factor + min;
+        int variance = BIG_VARIANCE ? 10 : 2;
+        do {
+            capacity = (int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian() * variance + 10);
+        } while (capacity < 1 || capacity > 20);
     }
 
     @Override
@@ -69,9 +64,14 @@ public class vLink extends Link implements Comparable<vLink> {
     public int compareTo(vLink l) {
         return
 //                l.getCapacity() - //malejąco
-                getCapacity()
-                        - l.getCapacity() //rosnąco
-                ;
+//                getCapacity()
+//                        - l.getCapacity() //rosnąco
+//                ;
+//                getCapacity() >= l.getCapacity() ? 1 : -1; //first
+//                getCapacity() < l.getCapacity() ? 1 : -1; // zgodnie z listą przy remisie (chyba bierze nastepnego jako l)
+
+                getCapacity() < l.getCapacity() ? 1 :
+                        -1;
     }
 
     @JsonCreator
@@ -80,12 +80,13 @@ public class vLink extends Link implements Comparable<vLink> {
         link.setCapacity(capacity);
         link.assign(source, target);
         link.setName();
-        link.setRequestIndex(request);
+        link.setReqIndex(request);
         return link;
     }
 
-    private void setRequestIndex(int request) {
-        requestIndex = request;
+    public void randomize(int req) {
+        reqIndex = req;
+        randomize();
     }
 
     public void randomize() {
@@ -94,6 +95,10 @@ public class vLink extends Link implements Comparable<vLink> {
     }
 
     public static void setRandom(long seed) {
-        random = new Random(seed);
+        RANDOM = new Random(seed);
+    }
+
+    public static void setRandom(Random random) {
+        RANDOM = random;
     }
 }

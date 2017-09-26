@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ilog.concert.IloException;
 import lombok.Getter;
 import lombok.Setter;
 import org.jgrapht.ListenableGraph;
@@ -18,22 +20,30 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 @Getter @Setter
 public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements ListenableGraph {
 
-	private List<Request> requests;
-//	private Heuristic heuristic;
-	private Solver solver;
-	private List<PathEnds> paths;
+    private List<Request> requests;
+    private List<PathEnds> paths;
+    private Solver solver;
 
-	private int usedCapacity;
-	private double solverTime;
+    private int usedCapacity;
+//    private double solverTime;
 
-	private List<Request> servedRequests;
-	private Map<Integer, Location> locations;
+    private int fullCapacity;
+    private int fullPower;
+    private int fullMemory;
 
-	private double serviceRate = 1;
-	private int reqCount;
-	private int servedCount;
-	
-	public Network() {
+    private double capacityLoadRate;
+    private double powerLoadRate;
+    private double memoryLoadRate;
+
+    private List<Request> servedRequests;
+    private Map<Integer, Location> locations;
+
+    private double serviceRate;
+    private int reqCount;
+    private int servedCount;
+    public static boolean IS_HEURISTIC;
+
+    public Network() {
         super(pLink.class);
         requests = new ArrayList<>();
         locations = new HashMap<>();
@@ -43,117 +53,138 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
     public Network(List<Request> requests) {
         super(pLink.class);
         this.requests = requests;
-		locations = new HashMap<>();
+        locations = new HashMap<>();
 //		usedCapacity = 0;
     }
 
+    public void setSolver() {
+        if (IS_HEURISTIC)
+            solver = new Heuristic(this);
+        else
+//				null;
+            try {
+                solver = new SolverOPL(this);
+            } catch (IloException e) {
+                e.printStackTrace();
+            }
+    }
+
     public void setSolver(boolean isHeuristic) {
-		solver = isHeuristic ? new Heuristic(this) :
-				null;
-//				new SolverOPL(this);
-	}
+        if (isHeuristic)
+            solver = new Heuristic(this);
+        else
+//				null;
+            try {
+                solver = new SolverOPL(this);
+            } catch (IloException e) {
+                e.printStackTrace();
+            }
+    }
 
-	public void addUsedCapacity(int capacity) {
-		usedCapacity += capacity;
-	}
+    public void addUsedCapacity(int capacity) {
+        usedCapacity += capacity;
+    }
 
-	public void removeUsedCapacity(int capacity) {
-		usedCapacity -= capacity;
-	}
+    public void removeUsedCapacity(int capacity) {
+        usedCapacity -= capacity;
+    }
 
-	public Set<pRouter> getRouters() {
-		return /*NaaSGraph.*/vertexSet();
-	}
+    public Set<pRouter> getRouters() {
+        return /*NaaSGraph.*/vertexSet();
+    }
 
-	public Set<pLink> getLinks() {
-		return /*NaaSGraph.*/edgeSet();
-	}
+    public Set<pLink> getLinks() {
+        return /*NaaSGraph.*/edgeSet();
+    }
 
-	private SimpleWeightedGraph getGraph(List<? extends Router> routers, List<? extends Link> links) {
-		SimpleWeightedGraph graph = new SimpleWeightedGraph<>(links.get(0).getClass());
-		routers.forEach(r -> graph.addVertex(r));
-		links.forEach(l -> {
-			graph.addEdge(l.getSource(),
-					l.getTarget(), l);
-			graph.setEdgeWeight(l, (double) 1 / l.getCapacity());
-		});
-		return graph;
-	}
+    private SimpleWeightedGraph getGraph(List<? extends Router> routers, List<? extends Link> links) {
+        SimpleWeightedGraph graph = new SimpleWeightedGraph<>(links.get(0).getClass());
+        routers.forEach(r -> graph.addVertex(r));
+        links.forEach(l -> {
+            graph.addEdge(l.getSource(),
+                    l.getTarget(), l);
+            graph.setEdgeWeight(l, (double) 1 / l.getCapacity());
+        });
+        return graph;
+    }
 
-	public void addRequest(Request request){
-		requests.add(request);
-	}
+    public void addRequest(Request request) {
+        requests.add(request);
+    }
 
-	public void removeRequest(Request request) {
-		requests.remove(request);
-	}
+    public void removeRequest(Request request) {
+        requests.remove(request);
+    }
 
-	public boolean isRequestInService(Request request) {
-		return requests.contains(request);
-	}
+    public boolean isRequestInService(Request request) {
+        return requests.contains(request);
+    }
 
-	public void serveRequests() {
-		if (solver == null)
-			solver = new Heuristic(this);
-		solver.solve();
-		solverTime = solver.getTime();
+    public void serveRequests() {
+        if (solver == null)
+            solver = new Heuristic(this);
+        solver.solve();
+//        solverTime = solver.getTime();
 //        System.out.println("TIME: " + heuristic.solve());
-	}
+    }
 
-	public void serveRequest(Request request) {
-		if (solver == null)
-			solver = new Heuristic(this);
-		reqCount++;
-		if (solver.serveRequest(request)) {
-			servedCount++;
-		}
-		serviceRate = (double) servedCount / reqCount;
-	}
+    public boolean serveRequest(Request request) {
+        boolean result;
+        if (solver == null)
+            solver = new Heuristic(this);
+        reqCount++;
+        if (result = solver.serveRequest(request)) {
+            servedCount++;
+        }
+        serviceRate = (double) servedCount / reqCount;
+        return result;
+    }
 
-	public void releaseRequest(Request request) {
-		if (solver != null)
-			solver.releaseRequest(request);
+    public void releaseRequest(Request request) {
+        if (solver != null)
+            solver.releaseRequest(request);
 //		requests.remove(request);
-	}
+    }
 
-	public void addServedRequest(Request request) {
-		if (servedRequests == null)
-			servedRequests = new ArrayList<>();
+    public void addServedRequest(Request request) {
+        if (servedRequests == null)
+            servedRequests = new ArrayList<>();
 //		if (isServed) {
 //		requests.remove(request);
 //		request.setServed(true);
-		servedRequests.add(request);
+        servedRequests.add(request);
 //		}
-	}
+    }
 
-	public void addServedRequest(int req) {
-		if (servedRequests == null)
-			servedRequests = new ArrayList<>();
-		Request request = requests.remove(req);
-		request.setServed(true);
-		servedRequests.add(request);
-	}
+    public void addServedRequest(int req) {
+        if (servedRequests == null)
+            servedRequests = new ArrayList<>();
+        Request request = requests.remove(req);
+        request.setServed(true);
+        servedRequests.add(request);
+    }
 
-	public void addRequestService(RequestService rs) {
-		if (rs.isInput())
-			requests.add(rs.getRequest());
-		else
-			solver.releaseRequest(rs.getRequest());
+    public void addRequestService(RequestService rs) {
+        if (rs.isInput())
+            requests.add(rs.getRequest());
+        else
+            solver.releaseRequest(rs.getRequest());
 
-	}
+    }
 
-	public List<PathEnds> getActualPaths() {
-		setPaths();
-		return paths;
-	}
+    public List<PathEnds> getActualPaths() {
+        if (paths == null)
+            setPaths();
+        return paths;
+    }
 
-	private void setPaths() {
+    private void setPaths() {
 //	public void setPaths() {
-		paths = new ArrayList<>();
-		setPaths(Integer.MAX_VALUE);
-	}
+        paths = new ArrayList<>();
+        setPaths(Integer.MAX_VALUE);
+    }
 
-	private void setPaths(int k) {
+    private void setPaths(int k) {
         KShortestPaths<pRouter, pLink> shortestPaths;
         try {
             shortestPaths = new KShortestPaths<>(/*NaaSGraph*/this, k);
@@ -164,50 +195,52 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
                     pRouter r2 = routersList.get(j);
                     PathEnds key = new PathEnds(r1, r2);
                     key.setPaths(shortestPaths.getPaths(r1, r2)
-							.stream()
-							.map(p -> new Path(p.getGraph(), p.getStartVertex(), p.getEndVertex(), p.getVertexList(), p.getEdgeList(), p.getWeight()))
-							.collect(Collectors.toList()));
-					paths.add(key);
+                            .stream()
+                            .map(p -> new Path(p.getGraph(), p.getStartVertex(), p.getEndVertex(), p.getVertexList(), p.getEdgeList(), p.getWeight()))
+                            .collect(Collectors.toList()));
+                    paths.add(key);
                     Path.resetCounter();
                 }
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	public void parseServedRequests(String vR, String vL) throws IOException {
-		ObjectMapper om = new ObjectMapper();
-		Map<String, Map<Integer, vRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
-		Map<String, Map<Integer, List<vLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>(){});
-		vRouters.entrySet().forEach(r -> {
-			pRouter router = (pRouter) ParserAMPL.getRouterByName(this, r.getKey());
-			if (router != null)
-				router.setVRouters(r.getValue());
-		});
-		vLinks.entrySet().forEach(l -> {
-			pLink link = (pLink) ParserAMPL.getLinkByName(this, l.getKey());
-			if (link != null)
-				link.setVLinks(l.getValue());
-		});
-	}
+    public void parseServedRequests(String vR, String vL) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        Map<String, Map<Integer, vRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, vRouter>>>() {
+        });
+        Map<String, Map<Integer, List<vLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>() {
+        });
+        vRouters.entrySet().forEach(r -> {
+            pRouter router = (pRouter) ParserAMPL.getRouterByName(this, r.getKey());
+            if (router != null)
+                router.setVRouters(r.getValue());
+        });
+        vLinks.entrySet().forEach(l -> {
+            pLink link = (pLink) ParserAMPL.getLinkByName(this, l.getKey());
+            if (link != null)
+                link.setVLinks(l.getValue());
+        });
+    }
 
-	public int getMaxSubstrateCapacity() {
-		return edgeSet().stream().mapToInt(l -> ((pLink)l).getSubstrateCapacity()).min().getAsInt();
-	}
+    public int getMaxMinSubstrateCapacity() {
+        return edgeSet().stream().mapToInt(l -> ((pLink) l).getSubstrateCapacity()).min().getAsInt();
+    }
 
-	@JsonCreator
-	public static Network JsonParser(@JsonProperty("links") List<pLink> links) {
-		Network network = new Network();
-		links.forEach(l -> {
-			pRouter r1 = (pRouter) l.getSource();
-			pRouter r2 = (pRouter) l.getTarget();
-			network.addVertex(r1);
-			network.addVertex(r2);
-			network.addEdge(r1, r2, l);
-		});
-		return network;
-	}
+    @JsonCreator
+    public static Network JsonParser(@JsonProperty("links") List<pLink> links) {
+        Network network = new Network();
+        links.forEach(l -> {
+            pRouter r1 = (pRouter) l.getSource();
+            pRouter r2 = (pRouter) l.getTarget();
+            network.addVertex(r1);
+            network.addVertex(r2);
+            network.addEdge(r1, r2, l);
+        });
+        return network;
+    }
 
     @Override
     public void addGraphListener(GraphListener graphListener) {
@@ -229,87 +262,84 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     }
 
-	public void addLocation(int location, int power, int memory) {
-		if (locations.containsKey(location))
-			locations.get(location).addValues(power, memory);
-		else
-			locations.put(location, new Location(location, power, memory));
-	}
+    public void addLocation(int location, int power, int memory) {
+        if (locations.containsKey(location))
+            locations.get(location).addValues(power, memory);
+        else {
+            locations.put(location, new Location(location, power, memory));
+            vRouter.LOC_MAX++;
+        }
+    }
 
-	@Getter @Setter
-	public class Location implements Locable {
-		private final int index;
-		private int power;
-		private int memory;
+    public void countUsedCapacity() {
+        usedCapacity = getLinks().stream().mapToInt(l -> (l.getCapacity() - l.getSubstrateCapacity())).sum();
+    }
 
-		private int substratePower;
-		private int substrateMemory;
+    public double getLoadRate() {
+		double loadRate = (getCapacityLoadRate() + getPowerLoadRate() + getMemoryLoadRate()) / 3;
+		return loadRate;
+    }
 
-		public Location(int index, int power, int memory) {
-			this.index = index;
-			this.power = substratePower = power;
-			this.memory = substrateMemory = memory;
-		}
+    public void countLoadRates() {
+        countCapacityLoadRate();
+        countPowerLoadRate();
+        countMemoryLoadRate();
+    }
 
-		public void update(int powerToAdd, int memoryToAdd) {
-			substratePower += powerToAdd;
-			substrateMemory += memoryToAdd;
-		}
+    private void countCapacityLoadRate() {
+        if (fullCapacity == 0)
+            fullCapacity = edgeSet().stream().mapToInt(l -> ((pLink) l).getCapacity()).sum();
+        capacityLoadRate = (double)usedCapacity / fullCapacity;
+    }
 
-		public void downdate(int powerToRemove, int memoryToRemove) {
-			substratePower -= powerToRemove;
-			substrateMemory -= memoryToRemove;
-		}
+    private void countPowerLoadRate() {
+        if (fullPower == 0)
+            fullPower = vertexSet().stream().mapToInt(r -> ((pRouter) r).getPower()).sum();
+        int freePower = vertexSet().stream().mapToInt(r -> ((pRouter) r).getSubstratePower()).sum();
+        powerLoadRate = 1 - (double)freePower / fullPower;
+    }
 
-		public void addValues(int power, int memory) {
-			this.power = substratePower += power;
-			this.memory = substrateMemory += memory;
-		}
+    private void countMemoryLoadRate() {
+        if (fullMemory == 0)
+            fullMemory = vertexSet().stream().mapToInt(r -> ((pRouter) r).getMemory()).sum();
+        int freeMemory = vertexSet().stream().mapToInt(r -> ((pRouter) r).getSubstrateMemory()).sum();
+        memoryLoadRate = 1 - (double)freeMemory / fullMemory;
+    }
 
-		@Override
-		public String toString() {
-			return String.format("%d %d/%d %d/%d", index, substratePower, power, substrateMemory, memory);
-		}
+    @Getter
+    @Setter
+    public class Location implements Locable, Serializable {
+        private final int index;
+        private int power;
+        private int memory;
 
-		//			this.substrateMemory = substrateMemory;
-		//		public void setSubstrateMemory(int substrateMemory) {
-		//
-		//		}
-		//			return substrateMemory;
-		//		public int getSubstrateMemory() {
-		//
-		//		}
-		//			this.substratePower = substratePower;
-		//		public void setSubstratePower(int substratePower) {
-		//
-		//		}
-		//			return substratePower;
-		//		public int getSubstratePower() {
-		//
-		//		}
-		//			this.memory = memory;
-		//		public void setMemory(int memory) {
-		//
-		//		}
-		//			return memory;
-		//		public int getMemory() {
-		//
-		//		}
-		//			this.power = power;
-		//		public void setPower(int power) {
-		//
-		//		}
-		//			return power;
-		//		public int getPower() {
-		//
-		//		}
-		//			this.index = index;
-		//		public void setIndex(int index) {
-		//
-		//		}
-		//			return index;
-//		public int getIndex() {
+        private int substratePower;
+        private int substrateMemory;
 
-//		}
-	}
+        public Location(int index, int power, int memory) {
+            this.index = index;
+            this.power = substratePower = power;
+            this.memory = substrateMemory = memory;
+        }
+
+        public void update(int powerToAdd, int memoryToAdd) {
+            substratePower += powerToAdd;
+            substrateMemory += memoryToAdd;
+        }
+
+        public void downdate(int powerToRemove, int memoryToRemove) {
+            substratePower -= powerToRemove;
+            substrateMemory -= memoryToRemove;
+        }
+
+        public void addValues(int power, int memory) {
+            this.power = substratePower += power;
+            this.memory = substrateMemory += memory;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%d %d/%d %d/%d", index, substratePower, power, substrateMemory, memory);
+        }
+    }
 }

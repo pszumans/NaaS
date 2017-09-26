@@ -3,8 +3,9 @@ import lombok.Getter;
 @Getter
 public abstract class Solver {
 
-    protected final Network network;
+    protected Network network;
     protected double time;
+    protected double fullTime;
 
     protected Solver(Network network) {
         this.network = network;
@@ -17,7 +18,8 @@ public abstract class Solver {
             network.addRequest(request);
 //        network.getRequests().add(request);
 //        network.getRequests().remove(request);
-        System.out.println(request);
+        network.countLoadRates();
+        Log.log(request);
         return true;
     }
 

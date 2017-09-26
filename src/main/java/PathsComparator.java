@@ -15,12 +15,15 @@ public class PathsComparator implements Comparator<Path> {
     public int compare(Path p1, Path p2) {
         return p1.getWeight() > p2.getWeight() ? 1
                 : p1.getWeight() < p2.getWeight() ? -1
-                : p1.getLeastCapacity() > p2.getLeastCapacity() ? 1
-                : p1.getLeastCapacity() < p2.getLeastCapacity() ? -1
+//                : p1.getSource().getLocation() != p1.getTarget().getLocation() && p2.getSource().getLocation() == p2.getTarget().getLocation() ? 1
+//                : p1.getSource().getLocation() == p1.getTarget().getLocation() && p2.getSource().getLocation() != p2.getTarget().getLocation() ? -1
+//                : p1.getTransitCount() > p2.getTransitCount() ? 1
+//                : p1.getTransitCount() < p2.getTransitCount() ? -1
+                : p1.getLeastCapacityRate() < p2.getLeastCapacityRate() ? 1
+                : p1.getLeastCapacityRate() > p2.getLeastCapacityRate() ? -1
                 :
-//                0
 
-                new PathEndsComparator(network).compare(p1,p2)
+                new EndsComparator(network).compare(p1,p2)
                 ;
     }
 }

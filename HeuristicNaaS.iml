@@ -14,6 +14,7 @@
     <orderEntry type="library" name="Desktop" level="project" />
     <orderEntry type="library" name="x64_win64" level="project" />
     <orderEntry type="library" name="oplall" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
     <orderEntry type="library" name="Maven: org.jgrapht:jgrapht:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.jgrapht:jgrapht-core:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.jgrapht:jgrapht-ext:1.0.1" level="project" />
@@ -23,6 +24,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.0.pr1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0.pr1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.0.pr1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
   </component>
 </module>

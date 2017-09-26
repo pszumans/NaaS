@@ -1,3 +1,6 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
@@ -5,23 +8,15 @@ import java.util.List;
 /**
  * Created by Szuman on 16.05.2017.
  */
+@Getter @Setter
 public class WriterOPL {
 
     private Network network;
     private PrintWriter pw;
     private StringBuilder dataText;
 
-    private int cnt = 0;
-
-    public int getCnt() {
-        return cnt;
-    }
-
+    private int cnt;
     private List<Request> requests;
-
-    public void setGraph(Network network) {
-        this.network = network;
-    }
 
     public WriterOPL(Network network) {
         this.network = network;
@@ -36,6 +31,7 @@ public class WriterOPL {
 
     public WriterOPL(String filename, boolean append) throws IOException {
         pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename), append)));
+        dataText = new StringBuilder();
     }
 
     public WriterOPL(String filename) throws IOException {

@@ -1,8 +1,6 @@
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxCellRenderer;
-import com.mxgraph.view.mxGraph;
 import org.jgrapht.Graph;
 import org.jgrapht.ListenableGraph;
 import org.jgrapht.ext.JGraphXAdapter;
@@ -24,9 +22,16 @@ public class GraphVisualisation extends JApplet {
 
 //    private JGraphXAdapter<String, DefaultEdge> jgxAdapter;
     private Graph graph;
+    private String text;
 
     public GraphVisualisation(ListenableGraph graph) throws HeadlessException {
         this.graph = graph;
+        init();
+    }
+
+    public GraphVisualisation(ListenableGraph graph, String text) throws HeadlessException {
+        this.graph = graph;
+        this.text = text;
         init();
     }
 
@@ -35,7 +40,10 @@ public class GraphVisualisation extends JApplet {
     {
         JFrame frame = new JFrame();
         frame.getContentPane().add(this);
-        frame.setTitle(String.format("Network Visualisation [Y=%d, Zmin=%d, t=%ss, rate=%s]", ((Network) graph).getUsedCapacity(), ((Network) graph).getMaxSubstrateCapacity(), ((Network) graph).getSolverTime(), ((Network) graph).getServiceRate()));
+        if (graph instanceof Network)
+            frame.setTitle(String.format("Network Visualisation %s [Y=%d, Zmin=%d, t=%ss, rate=%s]", (text != null) ? text : "", ((Network) graph).getUsedCapacity(), ((Network) graph).getMaxMinSubstrateCapacity(), ((Network) graph).getSolver().getFullTime(), ((Network) graph).getServiceRate()));
+        if (graph instanceof Request)
+            frame.setTitle(((Request) graph).getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);

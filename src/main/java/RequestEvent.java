@@ -1,11 +1,16 @@
+import lombok.Getter;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public abstract class RequestEvent {//implements Comparable<RequestEvent> {
+@Getter
+public abstract class RequestEvent {
 
-    protected static int numbersOfRouters = 3;
-    protected static int numbersOfLinks = 2;
+    private static Random RANDOM;//implements Comparable<RequestEvent> {
+
+    protected static int numbersOfRouters = 5;
+    protected static int numbersOfLinks = 7;
 
     protected double time;
     protected Random rand;
@@ -21,6 +26,13 @@ public abstract class RequestEvent {//implements Comparable<RequestEvent> {
         return Collections.emptyList();
     }
 
+    public RequestEvent(Network network, double lambda) {
+        this.network = network;
+        this.lambda = lambda;
+        this.seed = Test.SEED;
+        this.rand = RANDOM;
+    }
+
     private RequestEvent(Network network, Request request, double lambda) {
         this.network = network;
         this.request = request;
@@ -32,6 +44,12 @@ public abstract class RequestEvent {//implements Comparable<RequestEvent> {
         this.network = network;
         this.lambda = lambda;
         this.seed = seed;
+    }
+
+    protected RequestEvent(Network network, double lambda, Random rand) {
+        this.network = network;
+        this.lambda = lambda;
+        this.rand = rand;
     }
 
     protected RequestEvent(RequestEvent event) {
@@ -54,4 +72,7 @@ public abstract class RequestEvent {//implements Comparable<RequestEvent> {
         return String.format("[%s] %s %s", time, getClass().getName(), request);
     }
 
+    public static void setRandom(Random random) {
+        RANDOM = random;
+    }
 }

@@ -16,24 +16,6 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
     private Map<Integer, List<Integer>> requests;
     private Map<Integer, vRouter> vRouters;
 
-    @Override
-    public String getParam(int i) {
-        StringBuilder sb = new StringBuilder(name + " ");
-        if (i == 0)
-            sb.append(substratePower + "\n");
-        else if (i == 1)
-            sb.append(substrateMemory + "\n");
-        if (i == 2)
-            sb.append(location + "\n");
-        return sb.toString();
-    }
-
-    public void setVRouters(Map<Integer, vRouter> vRouters) {
-        vRouters.entrySet().forEach(e ->
-                serveRequest(e.getKey(), e.getValue()));
-//        this.vRouters = vRouters;
-    }
-
     public pRouter(String name, int Bw, int Mw, int Lw) {
         super(name, Bw, Mw);
         location = Lw;
@@ -92,6 +74,24 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
             }
     }
 
+    @Override
+    public String getParam(int i) {
+        StringBuilder sb = new StringBuilder(name + " ");
+        if (i == 0)
+            sb.append(substratePower + "\n");
+        else if (i == 1)
+            sb.append(substrateMemory + "\n");
+        if (i == 2)
+            sb.append(location + "\n");
+        return sb.toString();
+    }
+
+    public void setVRouters(Map<Integer, vRouter> vRouters) {
+        vRouters.entrySet().forEach(e ->
+                serveRequest(e.getKey(), e.getValue()));
+//        this.vRouters = vRouters;
+    }
+
     private boolean checkPower(int Bv) {
         return substratePower >= Bv;
     }
@@ -100,11 +100,11 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
         return substrateMemory >= Mv;
     }
 
-    private boolean checkLocation(List<Integer> Lv) {
+    private boolean checkLocation(Set<Integer> Lv) {
         return Lv.contains(location);
     }
 
-    private boolean checkAll(int Bv, int Mv, List<Integer> Lv) {
+    private boolean checkAll(int Bv, int Mv, Set<Integer> Lv) {
         return (checkPower(Bv) && checkMemory(Mv) && checkLocation(Lv));
     }
 
@@ -122,14 +122,14 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
             return;
         if (!router.getLocations().contains(location))
             try {
-                throw new WrongLocationException(getVisualText() + " --> " + request + ":" + router);
+                throw new WrongLocationException(getVisualText() + " --> " + request + ": " + router);
             } catch (WrongLocationException e) {
                 e.printStackTrace();
                 System.exit(1);
             }
         if (vRouters.containsKey(request))
             try {
-                throw new RequestAllocatedException(getVisualText() + " TRY: " + request + ":" + router);
+                throw new RequestAllocatedException(getVisualText() + " TRY: " + request + ": " + router);
             } catch (RequestAllocatedException e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -146,7 +146,7 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
     }
 
     public void removeRequest(int request) {
-        if (!requests.containsKey(request)) return;
+        if (requests == null || !requests.containsKey(request)) return;
         int power = requests.get(request).get(0);
         int memory = requests.get(request).get(1);
         addPower(power);
@@ -163,7 +163,7 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
     }
 
     public boolean checkParameters(vRouter router) {
-        boolean toReturn = checkAll(router.getPower(), router.getMemory(), router.getLocations());
+        boolean toReturn = (vRouters != null && vRouters.containsKey(router.getReqIndex())) ? false : checkAll(router.getPower(), router.getMemory(), router.getLocations());
 //        if (!toReturn)
 //            System.out.println("LOCATION CHECK: p = " + location + " v = " + router.getLocations());
         return toReturn;
