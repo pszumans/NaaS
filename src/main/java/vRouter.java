@@ -124,7 +124,6 @@ public class vRouter extends Router {
             }
             locations.add(location);
         }
-//        this.locations = new ArrayList<>(locations);
     }
 
     private void nearLocations(int location) {

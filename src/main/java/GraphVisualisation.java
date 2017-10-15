@@ -12,9 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by Szuman on 01.04.2017.
- */
 public class GraphVisualisation extends JApplet {
 
     private static final long serialVersionUID = 2202072534703043194L;

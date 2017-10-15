@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class NegativeParameterException extends Exception {
     public NegativeParameterException() {
         super();

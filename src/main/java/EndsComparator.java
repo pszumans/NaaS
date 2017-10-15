@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.ToIntFunction;
 
 public class EndsComparator implements Comparator<Path> {
@@ -6,9 +8,7 @@ public class EndsComparator implements Comparator<Path> {
     private Network network;
 
     private int maxPower;
-    //    private int minPower;
     private int maxMemory;
-    //    private int minMemory;
     private double diffPower;
     private double diffMemory;
     private double max;
@@ -49,21 +49,12 @@ public class EndsComparator implements Comparator<Path> {
 
         double one = 0, two = 0;
 
-//        if (maxPower > network.getRouters().stream().mapToInt(pRouter::getPower).max().getAsInt()
-//                && maxMemory > network.getRouters().stream().mapToInt(pRouter::getMemory).max().getAsInt()) {
         if (!isGlobal) {
             isGlobal = true;
             initCons();
         }
         one = count(network.getLocations().get(p1.getSource().getLocation()), network.getLocations().get(p1.getTarget().getLocation()));
-//        double t = max;
         two = count(network.getLocations().get(p2.getSource().getLocation()), network.getLocations().get(p2.getTarget().getLocation()));
-
-//        if (two == one) {
-//            one = t;
-//            two = max;
-//        }
-//
 
         if (two == one) {
             if (isGlobal) {
@@ -76,30 +67,8 @@ public class EndsComparator implements Comparator<Path> {
             if (two == one) {
                 one = temp;
                 two = max;
-//                System.out.println(p1.getSource() + " " + p1.getTarget());
-//                System.out.println(p2.getSource() + " " + p2.getTarget());
-//                System.out.println(one + " " + two);
-//                new Scanner(System.in).nextLine();
             }
         }
-
-//        if (two - one == 0) {
-//            one = count(network.getLocations().get(p1.getSource().getLocation()), network.getLocations().get(p1.getTarget().getLocation()));
-//            two = count(network.getLocations().get(p2.getSource().getLocation()), network.getLocations().get(p2.getTarget().getLocation()));
-//        }
-
-//        if (two - one == 0) {
-//            one = 0;
-//            two = 0;
-//            if (p1.getSource().isTransit())
-//                two++;
-//            if (p1.getTarget().isTransit())
-//                two++;
-//            if (p2.getSource().isTransit())
-//                one++;
-//            if (p2.getTarget().isTransit())
-//                one++;
-//        }
 
         return (two < one) ? 1 : (two == one) ? 0 : -1;
     }
@@ -119,19 +88,6 @@ public class EndsComparator implements Comparator<Path> {
         double memory = //(diffMemory == 0) ? Double.MAX_EXPONENT :
                 (2 * maxMemory -
                         (memory1 + memory2)) / diffMemory;
-//        System.out.println("MAXP = " + maxPower);
-//        System.out.println("MinP = " + minPower);
-//        System.out.println("MAXM = " + maxMemory);
-//        System.out.println("MinM = " + minMemory);
-//        System.out.println("L1 P = " + locable1.getSubstratePower());
-//        System.out.println("L1 M = " + locable1.getSubstrateMemory());
-//        System.out.println("L2 P = " + locable2.getSubstratePower());
-//        System.out.println("L2 M = " + locable2.getSubstrateMemory());
-//        System.out.println("power = " + power);
-//        System.out.println("p2 = " + p2);
-//        System.out.println("memory = " + memory);
-//        System.out.println("m2 = " + m2);
-//        new Scanner(System.in).nextLine();
         if (!isGlobal)
             max = Math.max(power, memory);
         return min(power, memory);
@@ -154,7 +110,7 @@ public class EndsComparator implements Comparator<Path> {
 //            two = max;
 //        }
 //        return (two <= one) ? 1
-////                : (two == one) ? 0
+//                : (two == one) ? 0
 //                : -1;
 //    }
 

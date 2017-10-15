@@ -1,13 +1,8 @@
-import java.util.*;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mxgraph.model.mxIGraphModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.SimpleWeightedGraph;
 
 @Getter @Setter
 public abstract class Link extends DefaultWeightedEdge {

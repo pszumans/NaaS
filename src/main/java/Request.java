@@ -10,7 +10,6 @@ import org.jgrapht.event.VertexSetListener;
 import org.jgrapht.generate.GnmRandomGraphGenerator;
 import org.jgrapht.graph.SimpleGraph;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Getter

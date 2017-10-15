@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.*;
 
 @Getter @Setter
-public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualisable, Locator {
+public class pRouter extends Router implements Visualisable, Locator {
 
     private int location; // geographical location
     private int substratePower = power;
@@ -89,7 +89,6 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
     public void setVRouters(Map<Integer, vRouter> vRouters) {
         vRouters.entrySet().forEach(e ->
                 serveRequest(e.getKey(), e.getValue()));
-//        this.vRouters = vRouters;
     }
 
     private boolean checkPower(int Bv) {
@@ -107,11 +106,6 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
     private boolean checkAll(int Bv, int Mv, Set<Integer> Lv) {
         return (checkPower(Bv) && checkMemory(Mv) && checkLocation(Lv));
     }
-
-//    @Override
-//    public int compareTo(pRouter r) {
-//        return r.getSubstratePower() + r.getSubstrateMemory() - getSubstratePower() - getSubstrateMemory();
-//    }
 
     public void serveRequest(int request, vRouter router) {
         if (requests == null)
@@ -154,7 +148,6 @@ public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualis
         requests.remove(request);
         vRouters.remove(request);
         if (Heuristic.RESTORABLE_LOCATION)
-//        network.updateLocation(location, power + memory);
         network.getLocations().get(location).update(power, memory);
     }
 

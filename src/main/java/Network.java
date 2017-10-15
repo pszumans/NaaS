@@ -1,9 +1,3 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,6 +10,12 @@ import org.jgrapht.alg.shortestpath.KShortestPaths;
 import org.jgrapht.event.GraphListener;
 import org.jgrapht.event.VertexSetListener;
 import org.jgrapht.graph.SimpleWeightedGraph;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter @Setter
 public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements ListenableGraph {

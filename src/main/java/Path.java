@@ -4,7 +4,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.GraphWalk;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
 
 @Getter @Setter
 public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
