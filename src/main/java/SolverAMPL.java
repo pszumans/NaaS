@@ -5,9 +5,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Szuman on 28.03.2017.
- */
 public class SolverAMPL {
     
     private final String noInteger = "NO INTEGER FEASIBLE SOLUTION";

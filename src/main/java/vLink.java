@@ -4,13 +4,10 @@ import lombok.Setter;
 
 import java.util.Random;
 
-//@JsonIgnoreProperties({"weight"})
 public class vLink extends Link implements Comparable<vLink> {
 
     public static boolean BIG_VARIANCE = false;
 
-    //    @JsonIgnore
-//    double weight;
     @Setter
     private int reqIndex;
     private static Random RANDOM;
@@ -62,16 +59,7 @@ public class vLink extends Link implements Comparable<vLink> {
 
     @Override
     public int compareTo(vLink l) {
-        return
-//                l.getCapacity() - //malejąco
-//                getCapacity()
-//                        - l.getCapacity() //rosnąco
-//                ;
-//                getCapacity() >= l.getCapacity() ? 1 : -1; //first
-//                getCapacity() < l.getCapacity() ? 1 : -1; // zgodnie z listą przy remisie (chyba bierze nastepnego jako l)
-
-                getCapacity() < l.getCapacity() ? 1 :
-                        -1;
+        return getCapacity() < l.getCapacity() ? 1 : -1;
     }
 
     @JsonCreator

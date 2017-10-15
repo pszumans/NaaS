@@ -308,7 +308,7 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     @Getter
     @Setter
-    public class Location implements Locable, Serializable {
+    public class Location implements Locator, Serializable {
         private final int index;
         private int power;
         private int memory;

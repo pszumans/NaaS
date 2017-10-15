@@ -7,7 +7,7 @@ import java.util.Random;
 @Getter
 public abstract class RequestEvent {
 
-    private static Random RANDOM;//implements Comparable<RequestEvent> {
+    private static Random RANDOM;
 
     protected static int numbersOfRouters = 5;
     protected static int numbersOfLinks = 7;
@@ -29,7 +29,7 @@ public abstract class RequestEvent {
     public RequestEvent(Network network, double lambda) {
         this.network = network;
         this.lambda = lambda;
-        this.seed = Test.SEED;
+        this.seed = Exec.SEED;
         this.rand = RANDOM;
     }
 

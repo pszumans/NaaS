@@ -1,17 +1,11 @@
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.regexp.internal.RE;
 import lombok.Getter;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
-import java.util.stream.IntStream;
 
-public class Test {
+public class Exec {
 
     public static String[] Pattern = {"Simulation Time", "RATE", "Solution Time", "Total Time", "Requests Allocated", "Used Capacity", "Request Status", "Max Min Capacity", "CLoad\tPLoad\tMload\tFullLoad"};
     public static String CSV = Log.DIR + "%s_%s_CSV.csv";
@@ -61,10 +55,10 @@ public class Test {
 
     public static long SEED;
 
-    public Test(String filename) {
+    public Exec(String filename) {
         this.filename = filename;
         name = filename.replace(SolverOPL.DATADIR, "").replace(".dat", "");
-        properties = ">>> seed = " + Test.SEED + ", topology = " + ((Request.FULL_RANDOM) ? "random" : "3x3") + ", variance = " + ((vLink.BIG_VARIANCE) ? "big" : "small") + ((Network.IS_HEURISTIC) ? ", HEURISTIC" : ", CPLEX") + " <<<";
+        properties = ">>> seed = " + Exec.SEED + ", topology = " + ((Request.FULL_RANDOM) ? "random" : "3x3") + ", variance = " + ((vLink.BIG_VARIANCE) ? "big" : "small") + ((Network.IS_HEURISTIC) ? ", HEURISTIC" : ", CPLEX") + " <<<";
         setRandom(SEED);
     }
 
@@ -209,7 +203,6 @@ public class Test {
         double lambda = 0.04;
         long seed = 1;
         singleLambda(lambda);
-//        new Thread(() -> javafx.application.Application.launch(Chart.class, bundle)).start();
     }
 
     @Getter

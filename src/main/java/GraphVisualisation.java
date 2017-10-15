@@ -20,7 +20,6 @@ public class GraphVisualisation extends JApplet {
     private static final long serialVersionUID = 2202072534703043194L;
     private static final Dimension DEFAULT_SIZE = new Dimension(530, 320);
 
-//    private JGraphXAdapter<String, DefaultEdge> jgxAdapter;
     private Graph graph;
     private String text;
 
@@ -50,12 +49,6 @@ public class GraphVisualisation extends JApplet {
     }
 
     public void saveToFile(String filename) {
-//        setSize(getPreferredSize());
-//        layoutComponent(this);
-//        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TRANSLUCENT);
-//        CellRendererPane crp = new CellRendererPane();
-//        crp.add(this);
-//        crp.paintComponent(img.createGraphics(), this, crp, getBounds());
 
         BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TRANSLUCENT);
         Graphics2D g2d = (Graphics2D) img.getGraphics();
@@ -98,12 +91,6 @@ public class GraphVisualisation extends JApplet {
             }
         };
 
-//        System.out.println(jgxAdapter.getCellStyle(jgxAdapter.getCellToVertexMap()));
-//        graph.vertexSet().forEach(v ->
-//        jgxAdapter.setCellStyle("fillColor=#CCCC00", jgxAdapter.getCellToVertexMap().keySet().toArray());
-//        );
-//        System.out.println(jgxAdapter.getCellStyle(jgxAdapter.getCellToVertexMap()));
-
         getContentPane().add(new mxGraphComponent(jgxAdapter));
         resize(DEFAULT_SIZE);
 
@@ -112,12 +99,6 @@ public class GraphVisualisation extends JApplet {
         layout.setInterRankCellSpacing(100);
         layout.setIntraCellSpacing(100);
         layout.setIntraCellSpacing(100);
-//        layout.setParallelEdgeSpacing(100);
-//        mxFastOrganicLayout layout = new mxFastOrganicLayout(jgxAdapter);
-//        layout.setResetEdges(false);
-//        layout.setOrientation(SwingConstants.VERTICAL);
         layout.execute(jgxAdapter.getDefaultParent());
-
-        // that's all there is to it!...
     }
 }

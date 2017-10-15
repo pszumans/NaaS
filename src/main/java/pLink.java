@@ -122,7 +122,6 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
                 }
         );
         sb.setLength(sb.length() - 2);
-//        sb.deleteCharAt(sb.length() - 2);
         sb.append("]");
         return sb.toString();
     }

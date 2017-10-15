@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.*;
 
 @Getter @Setter
-public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualisable, Locable {
+public class pRouter extends Router implements /*Comparable<pRouter>,*/ Visualisable, Locator {
 
     private int location; // geographical location
     private int substratePower = power;

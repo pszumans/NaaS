@@ -36,7 +36,6 @@ public class Request extends SimpleGraph implements ListenableGraph {
     }
 
     public Request(Class<? extends vLink> edgeClass) {
-//        this(edgeClass, 0);
         super(edgeClass);
         index = ++COUNTER;
         setName(null);
@@ -46,9 +45,6 @@ public class Request extends SimpleGraph implements ListenableGraph {
         super(edgeClass);
         index = i;
         setName(name);
-//                (i != 0) ? i :
-//                        ++COUNTER;
-//        name = "R" + index;
     }
 
     public Request(Class<? extends vLink> edgeClass, String name) {
@@ -70,15 +66,12 @@ public class Request extends SimpleGraph implements ListenableGraph {
             l = l + 1;
 
         } else {
-//            int r = (RANDOM != null ? RANDOM : (RANDOM != null ? RANDOM : new Random())).nextInt(numbersOfRouters - 2) + 3;
             r = (RANDOM != null ? RANDOM : (RANDOM != null ? RANDOM : new Random())).nextInt(numbersOfRouters - 1) + 2;
             int bound = getComb(r);
 
             while ((l = (RANDOM != null ? RANDOM : new Random()).nextInt(bound > numbersOfLinks ? numbersOfLinks : bound) + 1) < r - 1)
                 ;
         }
-//        System.out.println("k = " + r + " l = " + l);
-//        new Scanner(System.in).nextLine();
         return getRandom(r, l, seed);
     }
 
@@ -93,8 +86,6 @@ public class Request extends SimpleGraph implements ListenableGraph {
     }
 
     private static Request generateRandom(int numberOfRouters, int numberOfLinks, long seed) {
-//        if (numberOfLinks == 3 && numberOfRouters == 3)
-//            System.out.println();
         Request request = new Request(vLink.class);
         GnmRandomGraphGenerator<vRouter, vLink> randomGraphGenerator;
         List key = Arrays.asList(numberOfRouters, numberOfLinks, seed);
@@ -110,8 +101,6 @@ public class Request extends SimpleGraph implements ListenableGraph {
         }
         final Set<Set<Integer>> set = new HashSet<>();
         final int max = vRouter.LOC_MAX;
-//        System.out.println(max);
-//        new Scanner(System.in).nextLine();
         final int reqIndex = request.getIndex();
         VertexFactory<vRouter> vertexFactory = (() -> {
             int size = set.size();
@@ -223,7 +212,6 @@ public class Request extends SimpleGraph implements ListenableGraph {
     }
 
     private static int getComb(int x) {
-//        return (x == 1) ? 1 : getFact(x) / (2 * getFact(x - 2));
         return (x == 1) ? 1 : x * (x - 1) / 2;
     }
 

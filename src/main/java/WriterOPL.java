@@ -64,10 +64,6 @@ public class WriterOPL {
         writeVw(isFull);
     }
 
-//    private void writeVw() {
-//        writeVw(true);
-//    }
-
     private void writeVw(boolean isFull) {
         write("Vw = { ");
         network.getRouters().forEach(r -> write(r.toOPL(isFull)));
@@ -88,7 +84,6 @@ public class WriterOPL {
         write("R = " + requests.size());
         write(";\n\n");
     }
-
 
     private void writeVRouters() {
         write("vRouters = [ ");
@@ -129,7 +124,6 @@ public class WriterOPL {
                         int[] temp = new int[network.edgeSet().size()];
                         write("<" + p.toOPL() + " ");
                         p.getEdgeList().forEach(l -> {
-//                            System.out.println(l.getIndex());
                             temp[l.getIndex() - 1] = 1;
 //                            write(l.getName().replace(" ", "_") + " ");
 //                            write("Dep[" + l.getIndex() + "] = 1 ");
@@ -179,40 +173,4 @@ public class WriterOPL {
         writeVRouters();
         writeVLinks();
     }
-/*
-    private void writeRequest(Request request) {
-
-//        write("R = " + network.getRequests().size());
-        write("R = 1");
-        write(";\n\n");
-
-//        Request request = network.getRequests().get(0);
-//        Request request = requests.get(index - 1);
-
-        write("vRouters = [ ");
-//        network.getRequests().forEach(request -> {
-        write("{ ");
-        request.vertexSet().forEach(r -> write(((Router) r).getName() + " "));
-        write(" }\n");
-//        });
-        write(" ];\n\n");
-
-        write("Vv = [ ");
-//        network.getRequests().forEach(request -> {
-        write("{ ");
-        request.vertexSet().forEach(r -> write(((vRouter) r).toOPL() + " "));
-        write(" }\n");
-//        });
-        write(" ];\n\n");
-
-        write("Ed = [ ");
-//        network.getRequests().forEach(request -> {
-        write("{ ");
-        request.edgeSet().forEach(l -> write(((vLink) l).toOPL() + " "));
-        write(" }\n");
-//        });
-        write(" ];\n\n");
-
-    }
-    */
 }

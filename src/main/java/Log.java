@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 
 public class Log {
 
-    public static String DIR = "D:\\NaaS\\Test\\logs\\";
+    public static String DIR = "D:\\NaaS\\Exec\\logs\\";
 
     public static String consoleLog = DIR + "%s_%s_LOG.csv";
     private static PrintWriter consoleWriter;
@@ -16,9 +16,6 @@ public class Log {
     public static Map<String, LogWriter> out;
 
     private static void put(String filename) throws IOException {
-        boolean hasDate = filename.endsWith(".csv") ? false : true;
-//        System.out.println(filename);
-//        filename = filename.split(".")[0];
         out.put(filename, new LogWriter(filename));
     }
 
@@ -60,12 +57,12 @@ public class Log {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//            out.get(filename).log(Test.Pattern);
+//            out.get(filename).log(Exec.Pattern);
         }
         out.get(filename).log(msgs);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < msgs.length; i++) {
-            sb.append(Test.Pattern[i]).append(" = ").append(msgs).append(" ");
+            sb.append(Exec.Pattern[i]).append(" = ").append(msgs).append(" ");
         }
         return sb.toString().replace(".", ",");
     }

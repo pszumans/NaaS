@@ -58,10 +58,6 @@ public abstract class Link extends DefaultWeightedEdge {
 		return (Router) super.getTarget();
 	}
 
-//	public String writeCapacity() {
-//		return routers.get(0) + " " + routers.get(1) + " " + capacity;
-//	}
-
 	public String toOPL() {
 		return String.format("<%s %d>\n", name, capacity);
 	}

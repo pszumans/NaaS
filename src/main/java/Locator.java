@@ -1,4 +1,4 @@
-public interface Locable {
+public interface Locator {
 
      int getPower();
 

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter @Setter
-public class Allocation implements Comparable<Allocation> {//}, Comparator<Allocation> {
+public class Allocation implements Comparable<Allocation> {
 
     private int reqIndex;
     private List<AllocationSet> allocationMap;
@@ -55,15 +55,6 @@ public class Allocation implements Comparable<Allocation> {//}, Comparator<Alloc
                 : usedCapacity > a.getUsedCapacity() ? 1
                 : a.getMaxMinCapacity() >= maxMinCapacity ? 1 : -1;
     }
-
-//    @Override
-//    public int compare(Allocation a1, Allocation a2) {
-//        return a1.usedCapacity < a2.getUsedCapacity() ? -1
-//                : a1.usedCapacity > a2.getUsedCapacity() ? 1
-//                : a1.maxMinCapacityRate > a2.getMaxMinCapacityRate() ? -1
-//                : a1.maxMinCapacityRate < a2.getMaxMinCapacityRate() ? 1
-//                : a2.getMaxMinCapacity() - maxMinCapacity;
-//    }
 
     @Getter @ToString
     private class AllocationSet {

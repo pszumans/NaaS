@@ -7,9 +7,6 @@ import lombok.Setter;
 import java.io.*;
 import java.util.*;
 
-/**
- * Created by Szuman on 13.05.2017.
- */
 @Getter
 @Setter
 public class SolverOPL extends Solver {
@@ -64,9 +61,6 @@ public class SolverOPL extends Solver {
     public SolverOPL(Network network, boolean isSeq) throws IloException {
         super(network);
         this.isSeq = isSeq;
-//        init();
-//        solve();
-//        toNetwork();
     }
 
     private pRouter getRouter(int index) {
@@ -92,7 +86,6 @@ public class SolverOPL extends Solver {
             reqPointer = seqReq.getIndex();
             return (vRouter) ParserOPL.getRouterByName(seqReq, name);
         }
-//        if (isSeq) req = reqPointer;
         if (vRouter != null) {
             reqPointer = network.getRequests().get(req - 1).getIndex();
             return vRouter;
@@ -151,51 +144,18 @@ public class SolverOPL extends Solver {
     }
 
     public void releaseAllRequests() {
-//        if (HYBRID) {
-//            backupVRouters = new HashMap<>();
-//            backupVLinks = new HashMap<>();
-//        }
         network.getRouters().stream().filter(r -> r.getRequests() != null).forEach(r -> {
-//            Map<Integer,vRouter> vRouters = r.getVRouters();
-//            if (HYBRID && vRouters != null) backupVRouters.put(r.getName(), new HashMap<>(vRouters));
             Set<Integer> reqs = new HashSet<>(r.getRequests().keySet());
             reqs.forEach(req -> r.removeRequest(req));
         });
         network.getLinks().stream().filter(l -> l.getRequests() != null).forEach(l -> {
-//            Map<Integer,List<vLink>> vLinks = l.getVLinks();
-//            if (HYBRID && vLinks != null) backupVLinks.put(l.getName(), new HashMap<>(vLinks));
             Set<Integer> reqs = new HashSet<>(l.getRequests().keySet());
             reqs.forEach(req -> l.removeRequest(req));
         });
     }
 
-
-    private boolean isOverLoaded(Request request) {
-//        boolean result = false;
-//        while (!result) {
-        if (locs == null) return false;
-        Log.log(locs);
-        return
-//            result =
-                request.vertexSet().stream().anyMatch(v -> ((vRouter) v).getPower() > locs.values().stream().filter(e -> ((vRouter) v).getLocations().contains(e.getIndex())).mapToInt(e -> e.getSubstratePower()).max().getAsInt())
-                        || request.vertexSet().stream().anyMatch(v -> ((vRouter) v).getPower() > locs.values().stream().filter(e -> ((vRouter) v).getLocations().contains(e.getIndex())).mapToInt(e -> e.getSubstrateMemory()).max().getAsInt())
-                        || request.edgeSet().stream().anyMatch(l -> ((vLink) l).getCapacity() > freeCapacity);
-
-//        }
-//        int powerNet = network.vertexSet().stream().filter(r -> getRouter().getLocation())
-//        return false;
-    }
-
     @Override
     public boolean serveRequest(Request request) {
-//        int maxNet = network.getLinks().stream().mapToInt(l -> l.getSubstrateCapacity()).sum();//getMaxMinSubstrateCapacity();
-//        int maxReq = request.getLinks().stream().mapToInt(vLink::getCapacity).sum();//.getAsInt();
-//        Log.log("REQ: " + maxReq + " vs  NET: " + freeCapacity + " ");
-//        Log.log(network.getLocations());
-//        if (isOverLoaded(request)) {
-//            Log.log("OVERLOAD - don't wanna solve");
-//            return false;
-//        }
         Log.log(request);
         network.addRequest(request);
         if (isSeq) {
@@ -203,7 +163,6 @@ public class SolverOPL extends Solver {
             seqReq = request;
         } else {
             wr = new WriterOPL(network).writeOPL();
-//            releaseAllRequests();
         }
         try {
             setData(wr.getDataString());
@@ -213,13 +172,11 @@ public class SolverOPL extends Solver {
                 Log.log("Solved!");
                 solveLoadBalancing();
                 updateTime();
-//                freeCapacity = network.getLinks().stream().mapToInt(l -> l.getSubstrateCapacity()).max().getAsInt();//getMaxMinSubstrateCapacity();
                 if (!isSeq)
                     releaseAllRequests();
                 toNetwork();
                 network.countUsedCapacity();
                 if (HYBRID) isSeq = true;
-//                udpdateLocs();
                 return super.serveRequest(request);
             } else {
                 super.releaseRequest(request);
@@ -227,13 +184,11 @@ public class SolverOPL extends Solver {
 //                Log.logF(Log.DIR + "error.txt", wr.getDataString());
                 if (HYBRID && isSeq) {
                     Log.log("Trying full optimal...");
-//                    new GraphVisualisation(network).start();
                     isSeq = false;
                     seqReq = null;
                     return serveRequest(request);
                 } else if (HYBRID && !isSeq) {
                     isSeq = true;
-//                    getFromBackup();
                 }
                 updateTime();
                 return false;
@@ -243,21 +198,16 @@ public class SolverOPL extends Solver {
         }
         super.releaseRequest(request);
         return false;
-//        new GraphVisualisation(network);
     }
 
     private void solveLoadBalancing() throws IloException {
-//        System.out.println("SOL = " + cplex.getObjValue());
-//        System.out.println(cplex.getObjective().getExpr());
         cplex.addEq(model.getElement("OCCUPIED").asIntExpr(), cplex.getObjValue(), "Best");//.getExpr();
         cplex.getObjective().setExpr(model.getElement("MINIMUM").asIntExpr());
         cplex.getObjective().setSense(IloObjectiveSense.Maximize);
         cplex.setParam(IloCplex.DoubleParam.TiLim, 100);
-//        System.out.println(cplex.getObjective().getExpr());
         Log.log("Load Balancing...");
         cplex.solve();
         Log.log("Balanced.");
-//        Log.log("MAX_MIN = " + cplex.getObjValue());
     }
 
     private void updateTime() {
@@ -301,7 +251,6 @@ public class SolverOPL extends Solver {
         oplF = new IloOplFactory();
         cplex = oplF.createCplex();
         cplex.setOut(debugStream);
-//        cplex.setOut(System.out);
         cplex.setParam(IloCplex.IntParam.Threads, 1);
         cplex.setParam(IloCplex.DoubleParam.TiLim, 1000);
         errHandler = oplF.createOplErrorHandler();
@@ -321,7 +270,6 @@ public class SolverOPL extends Solver {
 
     public void setData(String text) throws IloException {
         init();
-//            text = "D:\\NaaS\\NaaS.dat";
         if (text.endsWith(".dat"))
             dataSource = oplF.createOplDataSource(text);//,filename.replace(".dat", ""));
         else
@@ -352,8 +300,6 @@ public class SolverOPL extends Solver {
         boolean routersAdded = false;
         List<pLink> linksList = new ArrayList<>(network.getLinks());
         for (int r = 1; r <= dataElements.getElement("R").asInt(); r++) {
-//            reqPointer++;
-//            Log.log("REQ: " + reqPointer + "/" + dataElements.getElement("R").asInt());
             for (int v = 0; v < Vv.get(r).getSize(); v++) {
                 vRouter vRouter = getVRouter(r, v);
 
@@ -391,10 +337,8 @@ public class SolverOPL extends Solver {
                             }
                             pLink pLink = linksList.get(e);
                             if (dep.get(Ee.makeTuple(e)) == 1) {
-//                                Log.log(pLink.getName() + " " + pLink.getVisualText());
                                 pLink.serveRequest(reqPointer, vLink);
                                 network.addUsedCapacity(vLink.getCapacity());
-//                                Log.log(pLink.getName() + " " + pLink.getVisualText());
                             }
                         }
                     }
@@ -403,14 +347,6 @@ public class SolverOPL extends Solver {
         }
         pLink.resetCounter();
 //        new GraphVisualisation(network).start();
-    }
-
-    private void clearMemory() {
-        if (dataElements != null) {
-            dataSource.end();
-            dataElements.end();
-            model.end();
-        }
     }
 
     public void end() {
@@ -423,93 +359,5 @@ public class SolverOPL extends Solver {
         settings.end();
         cplex.end();
         oplF.end();
-//        debugWriter.close();
     }
-
-//    private void serveSeqReq(Request request) throws IloException {
-//
-//        getDataElements();
-//
-//        int x = 0;
-//        int u = 0;
-////        boolean routersAdded = false;
-//        List<pLink> linksList = new ArrayList<>(network.getLinks());
-////            reqPointer++;
-////            Log.log("REQ: " + reqPointer + "/" + dataElements.getElement("R").asInt());
-//        for (int v = 0; v < Vv.get(1).getSize(); v++) {
-//            vRouter vRouter = (vRouter) ParserOPL.getRouterByName(request, Vv.get(1).makeTuple(v).getStringValue("name"));
-//
-//            for (int w = 0; w < Vw.getSize(); w++) {
-//                IloTuple xvw = Xwv.makeTuple(x++);
-//                if (Xvw.get(xvw) == 1) {
-////                        if (pRouter == null) {
-//                    pRouter pRouter = (pRouter) ParserOPL.getRouterByName(network, Vw.makeTuple(w).getStringValue("name"));
-////                 g       }
-//                    pRouter.serveRequest(request.getIndex(), vRouter);
-//                }
-//            }
-////                routersAdded = true;
-//            }
-//
-//            for (int d = 0; d < Ed.get(1).getSize(); d++) {
-//
-//                IloTuple dd = Ed.get(1).makeTuple(d);
-////        if (isSeq) req = reqPointer;
-//                vRouter r1 = (vRouter) ParserOPL.getRouterByName(request, dd.getStringValue("source"));
-//                vRouter r2 = (vRouter) ParserOPL.getRouterByName(request, dd.getStringValue("target"));
-//
-//                vLink vLink = (vLink) request.getEdge(r1, r2);
-//
-//                for (int p = 0; p < Pst.getSize(); p++) {
-//
-//                    IloTuple pst = Pst.makeTuple(p);
-//                    IloIntMap dep = pst.getIntMapValue("Dep");
-//
-//                    IloTuple udp = Upd.makeTuple(u++);
-//
-//                    if (Udp.get(udp) == 1) {
-//                        for (int e = 0; e < Ee.getSize(); e++) {
-//                            pLink pLink = linksList.get(e);
-//                            if (dep.get(Ee.makeTuple(e)) == 1) {
-////                                Log.log(pLink.getName() + " " + pLink.getVisualText());
-//                                pLink.serveRequest(request.getIndex(), vLink);
-//                                network.addUsedCapacity(vLink.getCapacity());
-////                                Log.log(pLink.getName() + " " + pLink.getVisualText());
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-//    public void solve() {
-//
-//        Log.log("Solve.");
-//        try {
-//            if (wr == null) setData();
-////            long start = System.nanoTime();
-//            if (cplex.solve()) {
-////                time = System.nanoTime() - start;
-//                Log.log("TIME per sol ~= " + (cplex.getCplexTime() - time));
-//                time = cplex.getCplexTime();
-//                Log.log("FULL TIME " + time);
-//                toNetwork();
-//            } else {
-//                Log.log("No solution!");
-//                return;
-//            }
-//        } catch (IloException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (isSeq && network.getRequests().size() > wr.getCnt()) {
-//            try {
-//                setData(wr.writeSeq().getDataString());
-//                solve();
-//            } catch (IloException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 }

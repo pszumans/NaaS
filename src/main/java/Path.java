@@ -57,7 +57,6 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 				.append(getTarget().getVRouters() != null ? getTarget().getVRouters() : "")
 				.append(" ").append(edgeList);
 		return sb.toString();
-//		return String.format("%s %d", toOPL(), getLeastCapacity());
 	}
 
 	public String toOPL() {
@@ -67,7 +66,6 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 
 	public String getInfo() {
 		StringBuilder sb = new StringBuilder();
-//		vertexList.forEach(r -> sb.append(r));
 		edgeList.forEach(l -> sb.append(l));
 		return sb.toString();
 	}
@@ -82,34 +80,24 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 
 	public int serveRequest(int request, vLink link) {
 		getEdgeList().forEach(l -> l.serveRequest(request, link));
-//		for (pLink l : getEdgeList()) {
-//			l.serveRequest(request, link);
-//			addedCapacity += link.getCapacity();
-//		}
-//		link.getRouters().forEach(vR -> {
 		if (direction == PathEnds.Direction.BOTH)
 			checkReverse(link);
 		getSource().serveRequest(request, link.getSource());
 		getTarget().serveRequest(request, link.getTarget());
 		return link.getCapacity() * getEdgeList().size();
-//			});
 	}
 
-	private void checkReverse(vLink link) { //!!!!!!!!!!!!!!!!!!!!!!!!! (y)?
+	private void checkReverse(vLink link) {
 		boolean shouldReverse = shouldReverse() != shouldReverse(link);
 		if (shouldReverse)
 			setDirection(PathEnds.Direction.REVERSE);
 	}
 
 	private boolean reverseParameters(int power1, int memory1, int power2, int memory2, int max) {
-//		int	maxPower = power1 >= power2 ? power1 : power2;
 		int maxPower = max;
 		int	minPower = power1 >= power2 ? power2 : power1;
-//		int	maxMemory = memory1 >= memory2 ? memory1 : memory2;
 		int maxMemory = max;
 		int	minMemory = memory1 >= memory2 ? memory2 : memory1;
-//		double diffPower = (maxPower != minPower) ? maxPower - minPower : Double.MIN_VALUE;
-//		double diffMemory = (maxMemory != minMemory) ? maxMemory - minMemory : Double.MIN_VALUE;
 		double diffPower = maxPower - minPower + Double.MIN_VALUE;
 		double diffMemory = maxMemory - minMemory + Double.MIN_VALUE;
 		double p1 = (maxPower - power1) / diffPower;
@@ -118,8 +106,6 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 		double m2 = (maxMemory - memory2) / diffMemory;
 		double min1 = Math.min(p1, m1);
 		double min2 = Math.min(p2, m2);
-//		System.out.println(power1 + "," + memory1 + " MIN1 = " + min1 + " " + power2 + "," + memory2 + " MIN2 =" + min2);
-//		System.out.println(p1 + "," + m1 + " " + p2 + "," + m2 + " res = " + (min2>min1));
 		return min1 > min2;
 	}
 
@@ -141,7 +127,6 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 
 	public int releaseRequest(int request) {
 		int addedCapacity = 0;
-//		getEdgeList().forEach(l -> l.removeRequest(request));
 		for (pLink l : getEdgeList()) {
 			addedCapacity += l.removeRequest(request);
 			if (Heuristic.WEIGHTABLE_LINKS)

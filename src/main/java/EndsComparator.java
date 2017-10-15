@@ -24,17 +24,17 @@ public class EndsComparator implements Comparator<Path> {
     }
 
     private void initCons() {
-        Set<Locable> locables = isGlobal ? new HashSet<>(network.getLocations().values()) : network.vertexSet();
-        initCons(getMax(locables, Locable::getSubstratePower), getMin(locables, Locable::getSubstratePower),
-                getMax(locables, Locable::getSubstrateMemory), getMin(locables, Locable::getSubstrateMemory));
+        Set<Locator> locators = isGlobal ? new HashSet<>(network.getLocations().values()) : network.vertexSet();
+        initCons(getMax(locators, Locator::getSubstratePower), getMin(locators, Locator::getSubstratePower),
+                getMax(locators, Locator::getSubstrateMemory), getMin(locators, Locator::getSubstrateMemory));
     }
 
-    private int getMax(Set<Locable> locables, ToIntFunction<Locable> function) {
-        return locables.stream().mapToInt(function).max().getAsInt();
+    private int getMax(Set<Locator> locators, ToIntFunction<Locator> function) {
+        return locators.stream().mapToInt(function).max().getAsInt();
     }
 
-    private int getMin(Set<Locable> locables, ToIntFunction<Locable> function) {
-        return locables.stream().mapToInt(function).min().getAsInt();
+    private int getMin(Set<Locator> locators, ToIntFunction<Locator> function) {
+        return locators.stream().mapToInt(function).min().getAsInt();
     }
 
     private void initCons(int maxPower, int minPower, int maxMemory, int minMemory) {
@@ -104,11 +104,11 @@ public class EndsComparator implements Comparator<Path> {
         return (two < one) ? 1 : (two == one) ? 0 : -1;
     }
 
-    private double count(Locable locable1, Locable locable2) {
-        int power1 = locable1.getSubstratePower();
-        int memory1 = locable1.getSubstrateMemory();
-        int power2 = locable2.getSubstratePower();
-        int memory2 = locable2.getSubstrateMemory();
+    private double count(Locator locator1, Locator locator2) {
+        int power1 = locator1.getSubstratePower();
+        int memory1 = locator1.getSubstrateMemory();
+        int power2 = locator2.getSubstratePower();
+        int memory2 = locator2.getSubstrateMemory();
         return count(power1, memory1, power2, memory2);
     }
 

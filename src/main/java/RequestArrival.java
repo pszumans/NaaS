@@ -14,10 +14,6 @@ public class RequestArrival extends RequestEvent {
         super(network, lambda);
     }
 
-//        public RequestArrival(Network network, double lambda, long seed) {
-//            super(network, lambda, seed);
-//        }
-
     public RequestArrival(RequestArrival arrival) {
         super(arrival);
         if (Request.FULL_RANDOM)
@@ -37,15 +33,7 @@ public class RequestArrival extends RequestEvent {
     }
 
     private List<? extends RequestEvent> serve() {
-//        boolean isServed =
         network.serveRequest(request);
-//        if (Network.IS_HEURISTIC && !isServed) {
-//            network.setSolver(false);
-//            SolverOPL sol = (SolverOPL)network.getSolver();
-//            network.serveRequest(request);
-//            sol.end();
-//            network.setSolver(true);
-//        }
         RequestArrival newArrival = new RequestArrival(this);
         return Arrays.asList(newArrival, new RequestRelease(newArrival));
     }

@@ -10,7 +10,6 @@ import java.util.stream.IntStream;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class vRouter extends Router {
 
-    //    @JsonProperty("L")
     private int L;
     public static int LOC_MAX;
     private static int COUNTER;
@@ -51,8 +50,6 @@ public class vRouter extends Router {
     public vRouter() {
         super(
                 "V" + ++COUNTER,
-//                ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40,// : new Random(SEED),
-//                ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40
                 (int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian()*5 + 20),
                 (int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian()*5 + 20)
         );
@@ -60,16 +57,8 @@ public class vRouter extends Router {
             setPower((int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian()*5 + 20));
         while (memory < 1 || memory > 40)
             setMemory((int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian()*5 + 20));
-//        randomLocations();
         nearLocations();
     }
-
-//    public vRouter(int i) {
-//        super("VV" + i,
-//                ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40,
-//                ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40);
-//        randomLocations();
-//    }
 
     public vRouter(int i, int loc) {
         super("V" + i,
@@ -139,8 +128,6 @@ public class vRouter extends Router {
     }
 
     private void nearLocations(int location) {
-//        locations = new ArrayList<>();
-//        L = ((RANDOM != null) ? RANDOM : new Random()).nextInt(LOC_MAX) + 1;
         L = Math.round(LOC_MAX / 3);
         for (int l = 0; l < L; l++) {
             locations.add(location);
@@ -148,12 +135,6 @@ public class vRouter extends Router {
                 location = 1;
         }
     }
-
-//    public void setLocation(int index, int location) {
-    //while (index > locations.size())
-    //locations.add(-1);
-//        locations.set(index - 1, location);
-//    }
 
     public void setLocationArray(int count) {
         L = count;
@@ -176,8 +157,6 @@ public class vRouter extends Router {
         if (locations == null)
             locations = new HashSet<>();
         locations = Arrays.stream(L).boxed().collect(Collectors.toSet());
-//        for (int l : L)
-//            locations.add(new Integer(l));
     }
 
     @Override
