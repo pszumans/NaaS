@@ -54,7 +54,7 @@ public class ParserAMPL {
 
     public void parse() throws FileNotFoundException {
 
-//        graph = new SimpleWeightedGraph<>(pLink.class);
+//        graph = new SimpleWeightedGraph<>(PLink.class);
         requests = new ArrayList<>();
         graph = new Network(requests);
 
@@ -71,7 +71,7 @@ public class ParserAMPL {
                 sc.nextLine();
         }
         sc.close();
-        pLink.resetCounter();
+        PLink.resetCounter();
     }
 
     private void addData(String dataKey) {
@@ -94,11 +94,11 @@ public class ParserAMPL {
 
     private void setParameter(String routerName, int KEY, int param, int req) {
         while (req > requests.size())
-            requests.add(new Request(vLink.class));
+            requests.add(new Request(VLink.class));
         Request request = requests.get(req - 1);
-        vRouter router = (vRouter) getRouterByName(request, routerName);
+        VRouter router = (VRouter) getRouterByName(request, routerName);
         if (router == null) {
-            router = new vRouter(routerName);
+            router = new VRouter(routerName);
             requests.get(req - 1).addVertex(router);
         }
         if (KEY == 0)
@@ -110,9 +110,9 @@ public class ParserAMPL {
     }
 
     private void setParameter(String routerName, int KEY, int param) {
-        pRouter router = (pRouter) getRouterByName(graph, routerName);
+        PRouter router = (PRouter) getRouterByName(graph, routerName);
         if (router == null) {
-            router = new pRouter(routerName);
+            router = new PRouter(routerName);
             graph.addVertex(router);
         }
         if (KEY == 0)
@@ -165,18 +165,18 @@ public class ParserAMPL {
 
     private void addLink(String r1, String r2, int capacity, int req) {
         while (req > requests.size())
-            requests.add(new Request(vLink.class));
+            requests.add(new Request(VLink.class));
         Request request = requests.get(req - 1);
-        vRouter vR1 = (vRouter) getRouterByName(request, r1);
-        vRouter vR2 = (vRouter) getRouterByName(request, r2);
-        vLink link = new vLink(vR1, vR2, capacity, request);
+        VRouter vR1 = (VRouter) getRouterByName(request, r1);
+        VRouter vR2 = (VRouter) getRouterByName(request, r2);
+        VLink link = new VLink(vR1, vR2, capacity, request);
         request.addLink(link);
     }
 
     private void addLink(String r1, String r2, int capacity) {
-        pRouter pR1 = (pRouter) getRouterByName(graph, r1);
-        pRouter pR2 = (pRouter) getRouterByName(graph, r2);
-        new pLink(pR1, pR2, capacity, graph);
+        PRouter pR1 = (PRouter) getRouterByName(graph, r1);
+        PRouter pR2 = (PRouter) getRouterByName(graph, r2);
+        new PLink(pR1, pR2, capacity, graph);
     }
 
     private void parseCapacity(boolean isVirtual) {

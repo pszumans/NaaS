@@ -47,7 +47,7 @@ public class ParserOPL {
                         ;
         }
         sc.close();
-        pLink.resetCounter();
+        PLink.resetCounter();
         return this;
     }
 
@@ -64,7 +64,7 @@ public class ParserOPL {
             } catch (java.util.InputMismatchException e) {
                 System.out.println(sc.next());
             }
-            network.addVertex(new pRouter(name, power, memory, location, network));
+            network.addVertex(new PRouter(name, power, memory, location, network));
             network.addLocation(location, power, memory);
         }
     }
@@ -73,15 +73,15 @@ public class ParserOPL {
         String r1;
         while (!(r1 = sc.next()).equals("}")) {
             String r2 = sc.next();
-            pRouter router1 = (pRouter) getRouterByName(network, r1);
-            pRouter router2 = (pRouter) getRouterByName(network, r2);
+            PRouter router1 = (PRouter) getRouterByName(network, r1);
+            PRouter router2 = (PRouter) getRouterByName(network, r2);
             int capacity = sc.nextInt();
-            new pLink(router1, router2, capacity, network);
+            new PLink(router1, router2, capacity, network);
         }
     }
 
     private void parseVRouters() {
-        Request request = new Request(vLink.class);
+        Request request = new Request(VLink.class);
         String name = sc.next();
         while (true) {
             int power = sc.nextInt();
@@ -90,10 +90,10 @@ public class ParserOPL {
             String location;// = sc.next();
             while (!(location = sc.next()).equals("}"))
                 locations.add(Integer.valueOf(location));
-            request.addVertex(new vRouter(name, power, memory, locations));
+            request.addVertex(new VRouter(name, power, memory, locations));
             if ((name = sc.next()).equals("}")) {
                 requests.add(request);
-                request = new Request(vLink.class);
+                request = new Request(VLink.class);
                 if ((name = sc.next()).equals(";")) {
                     break;
                 }
@@ -107,10 +107,10 @@ public class ParserOPL {
         String r1 = sc.next();
         while (true) {
             String r2 = sc.next();
-            vRouter router1 = (vRouter) getRouterByName(request, r1);
-            vRouter router2 = (vRouter) getRouterByName(request, r2);
+            VRouter router1 = (VRouter) getRouterByName(request, r1);
+            VRouter router2 = (VRouter) getRouterByName(request, r2);
             int capacity = sc.nextInt();
-            request.addLink(new vLink(router1, router2, capacity, request));
+            request.addLink(new VLink(router1, router2, capacity, request));
             if ((r1 = sc.next()).equals("}")) {
                 if ((r1 = sc.next()).equals(";")) {
                     break;

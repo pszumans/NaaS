@@ -5,9 +5,6 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Szuman on 16.05.2017.
- */
 @Getter @Setter
 public class WriterOPL {
 
@@ -100,7 +97,7 @@ public class WriterOPL {
         write("Vv = [ ");
         requests.forEach(req -> {
             write("{ ");
-            req.vertexSet().forEach(r -> write(((vRouter) r).toOPL() + " "));
+            req.vertexSet().forEach(r -> write(((VRouter) r).toOPL() + " "));
             write(" }\n");
         });
         write(" ];\n\n");
@@ -110,7 +107,7 @@ public class WriterOPL {
         write("Ed = [ ");
         requests.forEach(req -> {
             write("{ ");
-            req.edgeSet().forEach(l -> write(((vLink) l).toOPL() + " "));
+            req.edgeSet().forEach(l -> write(((VLink) l).toOPL() + " "));
             write(" }\n");
         });
         write(" ];\n\n");

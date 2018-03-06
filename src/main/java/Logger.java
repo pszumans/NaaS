@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public class Log {
+public class Logger {
 
     public static String DIR = "D:\\NaaS\\Exec\\logs\\";
 
@@ -94,7 +94,7 @@ public class Log {
     public static void toResults(String name, double lambda, String msg) {
         if (resultsWriter == null)
             try {
-                resultsWriter = new PrintWriter(new FileOutputStream(new File(Log.DIR + "results_" + name + "_" + (int)(lambda * 100) + ".csv")), true);
+                resultsWriter = new PrintWriter(new FileOutputStream(new File(Logger.DIR + "results_" + name + "_" + (int)(lambda * 100) + ".csv")), true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

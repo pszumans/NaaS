@@ -10,16 +10,16 @@ import java.util.List;
 import java.util.Map;
 
 @Getter @Setter
-public class pLink extends Link implements Comparable<pLink>, Visualisable {
+public class PLink extends Link implements Comparable<PLink>, Visualisable {
 
     private static int COUNTER = 0;
     private int index;
 
     private int substrateCapacity;
     private Map<Integer, Integer> requests;
-    private Map<Integer, List<vLink>> vLinks;
+    private Map<Integer, List<VLink>> vLinks;
 
-    public pLink(pRouter r1, pRouter r2, int capacity, SimpleWeightedGraph graph) {
+    public PLink(PRouter r1, PRouter r2, int capacity, SimpleWeightedGraph graph) {
         super(r1, r2, capacity, graph);
         index = ++COUNTER;
         substrateCapacity = capacity;
@@ -35,7 +35,7 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
         COUNTER = 0;
     }
 
-    public pLink() {
+    public PLink() {
         super();
     }
 
@@ -59,11 +59,11 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     }
 
     @Override
-    public int compareTo(pLink l) {
+    public int compareTo(PLink l) {
         return substrateCapacity - l.getSubstrateCapacity();
     }
 
-    public void serveRequest(int request, vLink link) {
+    public void serveRequest(int request, VLink link) {
         if (requests == null)
             requests = new LinkedHashMap<>();
         if (vLinks == null)
@@ -98,8 +98,8 @@ public class pLink extends Link implements Comparable<pLink>, Visualisable {
     }
 
     @JsonCreator
-    public static pLink JsonParser(@JsonProperty("S") pRouter source, @JsonProperty("T") pRouter target, @JsonProperty("C") int capacity, @JsonProperty("vLinks") Map<Integer, List<vLink>> vLinks) {
-        pLink link = new pLink();
+    public static PLink JsonParser(@JsonProperty("S") PRouter source, @JsonProperty("T") PRouter target, @JsonProperty("C") int capacity, @JsonProperty("vLinks") Map<Integer, List<VLink>> vLinks) {
+        PLink link = new PLink();
         link.setCapacity(capacity);
         link.assign(source, target);
         link.setName();

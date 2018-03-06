@@ -67,7 +67,7 @@ public abstract class Link extends DefaultWeightedEdge {
 	}
 
 	protected void assign(Router source, Router target) {
-		SimpleGraph graph = new SimpleGraph(vLink.class);
+		SimpleGraph graph = new SimpleGraph(VLink.class);
 		graph.addVertex(source);
 		graph.addVertex(target);
 		graph.addEdge(source, target, this);

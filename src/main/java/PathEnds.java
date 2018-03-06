@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class PathEnds extends Pair<pRouter, pRouter> {
+public class PathEnds extends Pair<PRouter, PRouter> {
 
     private List<Path> paths;
 
@@ -17,7 +17,7 @@ public class PathEnds extends Pair<pRouter, pRouter> {
     private Direction direction;
     private String name;
 
-    public PathEnds(pRouter r1, pRouter r2) {
+    public PathEnds(PRouter r1, PRouter r2) {
         super(r1, r2);
         direction = Direction.BOTH;
     }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Getter @Setter
-public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
+public class Path extends GraphWalk<PRouter, PLink> implements Serializable {
 
 	private static int COUNTER = 0;
 	private String name;
@@ -15,21 +15,21 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 
 	private PathEnds.Direction direction;
 
-	public Path(Graph<pRouter, pLink> graph, List<pRouter> vertexList, double weight) {
+	public Path(Graph<PRouter, PLink> graph, List<PRouter> vertexList, double weight) {
 		super(graph, vertexList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
 		direction = PathEnds.Direction.BOTH;
 	}
 
-	public Path(Graph<pRouter, pLink> graph, pRouter startVertex, pRouter endVertex, List<pLink> edgeList, double weight) {
+	public Path(Graph<PRouter, PLink> graph, PRouter startVertex, PRouter endVertex, List<PLink> edgeList, double weight) {
 		super(graph, startVertex, endVertex, edgeList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
 		direction = PathEnds.Direction.BOTH;
 	}
 
-	public Path(Graph<pRouter, pLink> graph, pRouter startVertex, pRouter endVertex, List<pRouter> vertexList, List<pLink> edgeList, double weight) {
+	public Path(Graph<PRouter, PLink> graph, PRouter startVertex, PRouter endVertex, List<PRouter> vertexList, List<PLink> edgeList, double weight) {
 		super(graph, startVertex, endVertex, vertexList, edgeList, weight);
 		name = getStartVertex() + " " + getEndVertex();
 		index = ++COUNTER;
@@ -37,7 +37,7 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 	}
 
 	public int getLeastCapacity() {
-		return getEdgeList().stream().mapToInt(pLink::getSubstrateCapacity).min().getAsInt();
+		return getEdgeList().stream().mapToInt(PLink::getSubstrateCapacity).min().getAsInt();
 	}
 
 	public double getLeastCapacityRate() {
@@ -78,7 +78,7 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 		COUNTER = 0;
 	}
 
-	public int serveRequest(int request, vLink link) {
+	public int serveRequest(int request, VLink link) {
 		getEdgeList().forEach(l -> l.serveRequest(request, link));
 		if (direction == PathEnds.Direction.BOTH)
 			checkReverse(link);
@@ -87,7 +87,7 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 		return link.getCapacity() * getEdgeList().size();
 	}
 
-	private void checkReverse(vLink link) {
+	private void checkReverse(VLink link) {
 		boolean shouldReverse = shouldReverse() != shouldReverse(link);
 		if (shouldReverse)
 			setDirection(PathEnds.Direction.REVERSE);
@@ -113,21 +113,21 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 		return shouldReverse(getSource(), getTarget());
 	}
 
-	private boolean shouldReverse(vLink link) {
+	private boolean shouldReverse(VLink link) {
 		return shouldReverse(link.getSource(), link.getTarget());
 	}
 
-	private boolean shouldReverse(vRouter r1, vRouter r2) {
+	private boolean shouldReverse(VRouter r1, VRouter r2) {
 		return reverseParameters(r1.getPower(), r1.getMemory(), r2.getPower(), r2.getMemory(), 40);
 	}
 
-	private boolean shouldReverse(pRouter r1, pRouter r2) {
+	private boolean shouldReverse(PRouter r1, PRouter r2) {
 		return reverseParameters(r1.getSubstratePower(), r1.getSubstrateMemory(), r2.getSubstratePower(), r2.getSubstrateMemory(), 200);
 	}
 
 	public int releaseRequest(int request) {
 		int addedCapacity = 0;
-		for (pLink l : getEdgeList()) {
+		for (PLink l : getEdgeList()) {
 			addedCapacity += l.removeRequest(request);
 			if (Heuristic.WEIGHTABLE_LINKS)
 				l.updateWeight();
@@ -137,11 +137,11 @@ public class Path extends GraphWalk<pRouter, pLink> implements Serializable {
 		return addedCapacity;
 	}
 
-	public pRouter getSource() {
+	public PRouter getSource() {
 		return direction.equals(PathEnds.Direction.SIMPLE) || direction.equals(PathEnds.Direction.BOTH) ? getStartVertex() : getEndVertex();
 	}
 
-	public pRouter getTarget() {
+	public PRouter getTarget() {
 		return direction.equals(PathEnds.Direction.SIMPLE) || direction.equals(PathEnds.Direction.BOTH) ? getEndVertex() : getStartVertex();
 	}
 

@@ -97,10 +97,10 @@ public class EndsComparator implements Comparator<Path> {
         return Math.min(power, memory);
     }
 
-//    public int compare(vLink link1, vLink link2) {
-//        List<vRouter> links = Arrays.asList(link1.getSource(), link1.getTarget(), link2.getSource(), link2.getTarget());
-//        int minPower = links.stream().mapToInt(vRouter::getPower).min().getAsInt();
-//        int minMemory = links.stream().mapToInt(vRouter::getMemory).min().getAsInt();
+//    public int compare(VLink link1, VLink link2) {
+//        List<VRouter> links = Arrays.asList(link1.getSource(), link1.getTarget(), link2.getSource(), link2.getTarget());
+//        int minPower = links.stream().mapToInt(VRouter::getPower).min().getAsInt();
+//        int minMemory = links.stream().mapToInt(VRouter::getMemory).min().getAsInt();
 //        initCons(40, minPower, 40, minMemory);
 //        double one = count(link1);
 //        double temp = max;
@@ -114,9 +114,9 @@ public class EndsComparator implements Comparator<Path> {
 //                : -1;
 //    }
 
-    private double count(vLink link) {
-        vRouter source = link.getSource();
-        vRouter target = link.getTarget();
+    private double count(VLink link) {
+        VRouter source = link.getSource();
+        VRouter target = link.getTarget();
         return count(source.getPower(), source.getMemory(), target.getPower(), target.getMemory());
     }
 }

@@ -4,7 +4,7 @@ import lombok.Setter;
 
 import java.util.Random;
 
-public class vLink extends Link implements Comparable<vLink> {
+public class VLink extends Link implements Comparable<VLink> {
 
     public static boolean BIG_VARIANCE = false;
 
@@ -12,7 +12,7 @@ public class vLink extends Link implements Comparable<vLink> {
     private int reqIndex;
     private static Random RANDOM;
 
-    public vLink() {
+    public VLink() {
         super();
 //        reqIndex = Request.getCount();
     }
@@ -22,12 +22,12 @@ public class vLink extends Link implements Comparable<vLink> {
         return reqIndex + " " + super.getParam();
     }
 
-    public vLink(vRouter r1, vRouter r2, int capacity, Request request) {
+    public VLink(VRouter r1, VRouter r2, int capacity, Request request) {
         super(r1, r2, capacity, request);
         reqIndex = request.getIndex();
     }
 
-    public vLink(vRouter r1, vRouter r2, int capacity, Request request, int index) {
+    public VLink(VRouter r1, VRouter r2, int capacity, Request request, int index) {
         super(r1, r2, capacity, request);
         reqIndex = index;
     }
@@ -40,13 +40,13 @@ public class vLink extends Link implements Comparable<vLink> {
     }
 
     @Override
-    protected vRouter getTarget() {
-        return (vRouter) super.getTarget();
+    protected VRouter getTarget() {
+        return (VRouter) super.getTarget();
     }
 
     @Override
-    public vRouter getSource() {
-        return (vRouter) super.getSource();
+    public VRouter getSource() {
+        return (VRouter) super.getSource();
     }
 
     @Override
@@ -58,13 +58,13 @@ public class vLink extends Link implements Comparable<vLink> {
     }
 
     @Override
-    public int compareTo(vLink l) {
+    public int compareTo(VLink l) {
         return getCapacity() < l.getCapacity() ? 1 : -1;
     }
 
     @JsonCreator
-    public static vLink JsonParser(@JsonProperty("S") vRouter source, @JsonProperty("T") vRouter target, @JsonProperty("C") int capacity, @JsonProperty("R") int request) {
-        vLink link = new vLink();
+    public static VLink JsonParser(@JsonProperty("S") VRouter source, @JsonProperty("T") VRouter target, @JsonProperty("C") int capacity, @JsonProperty("R") int request) {
+        VLink link = new VLink();
         link.setCapacity(capacity);
         link.assign(source, target);
         link.setName();

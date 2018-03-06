@@ -20,7 +20,7 @@ public class Allocation implements Comparable<Allocation> {
     }
 
 
-    public Path allocate(Path path, vLink link) {
+    public Path allocate(Path path, VLink link) {
         if (allocationMap == null) {
             allocationMap = new ArrayList<>();
         }
@@ -33,7 +33,7 @@ public class Allocation implements Comparable<Allocation> {
         allocationMap.forEach(s -> {
             s.getPath().setDirection(s.getDirection());
             s.getPath().serveRequest(reqIndex, s.getLink());
-//            Log.log(s.getLink() + " --> " + s.getPath());
+//            Logger.log(s.getLink() + " --> " + s.getPath());
         });
         return usedCapacity;
     }
@@ -60,10 +60,10 @@ public class Allocation implements Comparable<Allocation> {
     private class AllocationSet {
 
         private final Path path;
-        private final vLink link;
+        private final VLink link;
         private final PathEnds.Direction direction;
 
-        private AllocationSet(Path path, PathEnds.Direction direction, vLink link) {
+        private AllocationSet(Path path, PathEnds.Direction direction, VLink link) {
             this.path = path;
             this.direction = direction;
             this.link = link;

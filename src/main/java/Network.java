@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter @Setter
-public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements ListenableGraph {
+public class Network extends SimpleWeightedGraph/*<PRouter, PLink>*/ implements ListenableGraph {
 
     private List<Request> requests;
     private List<PathEnds> paths;
@@ -44,14 +44,14 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
     public static boolean IS_HEURISTIC;
 
     public Network() {
-        super(pLink.class);
+        super(PLink.class);
         requests = new ArrayList<>();
         locations = new HashMap<>();
 //        usedCapacity = 0;
     }
 
     public Network(List<Request> requests) {
-        super(pLink.class);
+        super(PLink.class);
         this.requests = requests;
         locations = new HashMap<>();
 //		usedCapacity = 0;
@@ -89,11 +89,11 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
         usedCapacity -= capacity;
     }
 
-    public Set<pRouter> getRouters() {
+    public Set<PRouter> getRouters() {
         return /*NaaSGraph.*/vertexSet();
     }
 
-    public Set<pLink> getLinks() {
+    public Set<PLink> getLinks() {
         return /*NaaSGraph.*/edgeSet();
     }
 
@@ -185,14 +185,14 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
     }
 
     private void setPaths(int k) {
-        KShortestPaths<pRouter, pLink> shortestPaths;
+        KShortestPaths<PRouter, PLink> shortestPaths;
         try {
             shortestPaths = new KShortestPaths<>(/*NaaSGraph*/this, k);
-            List<pRouter> routersList = new ArrayList<>(vertexSet());
+            List<PRouter> routersList = new ArrayList<>(vertexSet());
             for (int i = 0; i < routersList.size() - 1; i++) {
                 for (int j = i + 1; j < routersList.size(); j++) {
-                    pRouter r1 = routersList.get(i);
-                    pRouter r2 = routersList.get(j);
+                    PRouter r1 = routersList.get(i);
+                    PRouter r2 = routersList.get(j);
                     PathEnds key = new PathEnds(r1, r2);
                     key.setPaths(shortestPaths.getPaths(r1, r2)
                             .stream()
@@ -209,32 +209,32 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     public void parseServedRequests(String vR, String vL) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        Map<String, Map<Integer, vRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, vRouter>>>() {
+        Map<String, Map<Integer, VRouter>> vRouters = om.readValue(new File(vR), new TypeReference<Map<String, Map<Integer, VRouter>>>() {
         });
-        Map<String, Map<Integer, List<vLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, vRouter>>>() {
+        Map<String, Map<Integer, List<VLink>>> vLinks = om.readValue(new File(vL), new TypeReference<Map<String, Map<Integer, VRouter>>>() {
         });
         vRouters.entrySet().forEach(r -> {
-            pRouter router = (pRouter) ParserAMPL.getRouterByName(this, r.getKey());
+            PRouter router = (PRouter) ParserAMPL.getRouterByName(this, r.getKey());
             if (router != null)
                 router.setVRouters(r.getValue());
         });
         vLinks.entrySet().forEach(l -> {
-            pLink link = (pLink) ParserAMPL.getLinkByName(this, l.getKey());
+            PLink link = (PLink) ParserAMPL.getLinkByName(this, l.getKey());
             if (link != null)
                 link.setVLinks(l.getValue());
         });
     }
 
     public int getMaxMinSubstrateCapacity() {
-        return edgeSet().stream().mapToInt(l -> ((pLink) l).getSubstrateCapacity()).min().getAsInt();
+        return edgeSet().stream().mapToInt(l -> ((PLink) l).getSubstrateCapacity()).min().getAsInt();
     }
 
     @JsonCreator
-    public static Network JsonParser(@JsonProperty("links") List<pLink> links) {
+    public static Network JsonParser(@JsonProperty("links") List<PLink> links) {
         Network network = new Network();
         links.forEach(l -> {
-            pRouter r1 = (pRouter) l.getSource();
-            pRouter r2 = (pRouter) l.getTarget();
+            PRouter r1 = (PRouter) l.getSource();
+            PRouter r2 = (PRouter) l.getTarget();
             network.addVertex(r1);
             network.addVertex(r2);
             network.addEdge(r1, r2, l);
@@ -267,7 +267,7 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
             locations.get(location).addValues(power, memory);
         else {
             locations.put(location, new Location(location, power, memory));
-            vRouter.LOC_MAX++;
+            VRouter.LOC_MAX++;
         }
     }
 
@@ -288,21 +288,21 @@ public class Network extends SimpleWeightedGraph/*<pRouter, pLink>*/ implements 
 
     private void countCapacityLoadRate() {
         if (fullCapacity == 0)
-            fullCapacity = edgeSet().stream().mapToInt(l -> ((pLink) l).getCapacity()).sum();
+            fullCapacity = edgeSet().stream().mapToInt(l -> ((PLink) l).getCapacity()).sum();
         capacityLoadRate = (double)usedCapacity / fullCapacity;
     }
 
     private void countPowerLoadRate() {
         if (fullPower == 0)
-            fullPower = vertexSet().stream().mapToInt(r -> ((pRouter) r).getPower()).sum();
-        int freePower = vertexSet().stream().mapToInt(r -> ((pRouter) r).getSubstratePower()).sum();
+            fullPower = vertexSet().stream().mapToInt(r -> ((PRouter) r).getPower()).sum();
+        int freePower = vertexSet().stream().mapToInt(r -> ((PRouter) r).getSubstratePower()).sum();
         powerLoadRate = 1 - (double)freePower / fullPower;
     }
 
     private void countMemoryLoadRate() {
         if (fullMemory == 0)
-            fullMemory = vertexSet().stream().mapToInt(r -> ((pRouter) r).getMemory()).sum();
-        int freeMemory = vertexSet().stream().mapToInt(r -> ((pRouter) r).getSubstrateMemory()).sum();
+            fullMemory = vertexSet().stream().mapToInt(r -> ((PRouter) r).getMemory()).sum();
+        int freeMemory = vertexSet().stream().mapToInt(r -> ((PRouter) r).getSubstrateMemory()).sum();
         memoryLoadRate = 1 - (double)freeMemory / fullMemory;
     }
 

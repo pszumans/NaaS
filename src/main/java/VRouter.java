@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class vRouter extends Router {
+public class VRouter extends Router {
 
     private int L;
     public static int LOC_MAX;
@@ -20,34 +20,34 @@ public class vRouter extends Router {
     private int reqIndex;
     private Set<Integer> locations;
 
-    public vRouter(String name, int B, int M, Set<Integer> Lv) {
+    public VRouter(String name, int B, int M, Set<Integer> Lv) {
         super(name, B, M);
         locations = Lv;
         reqIndex = Request.getCount();
     }
 
-    public vRouter(String name, int B, int M, Set<Integer> Lv, int index) {
+    public VRouter(String name, int B, int M, Set<Integer> Lv, int index) {
         super(name, B, M);
         locations = Lv;
         reqIndex = index;
     }
 
-    public vRouter(String name, int B, int M, int... L) {
+    public VRouter(String name, int B, int M, int... L) {
         super(name, B, M, L);
     }
 
-    public vRouter(String name) {
+    public VRouter(String name) {
         super(name);
         locations = new HashSet<>();
         reqIndex = Request.getCount();
     }
 
-    public vRouter(int req) {
+    public VRouter(int req) {
         this();
         reqIndex = req;
     }
 
-    public vRouter() {
+    public VRouter() {
         super(
                 "V" + ++COUNTER,
                 (int) Math.round(((RANDOM != null) ? RANDOM : new Random()).nextGaussian()*5 + 20),
@@ -60,14 +60,14 @@ public class vRouter extends Router {
         nearLocations();
     }
 
-    public vRouter(int i, int loc) {
+    public VRouter(int i, int loc) {
         super("V" + i,
                 ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40,
                 ((RANDOM != null) ? RANDOM : new Random()).nextInt(5)*5 + 40);
         nearLocations(loc);
     }
 
-    public vRouter(String name, int B, int M, int request, int... L) {
+    public VRouter(String name, int B, int M, int request, int... L) {
         super(name, B, M, L);
         reqIndex = request;
     }
@@ -164,8 +164,8 @@ public class vRouter extends Router {
     }
 
     @JsonCreator
-    public static vRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("R") int request, @JsonProperty("L") int... L) {
-        return new vRouter(name, B, M, request, L);
+    public static VRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("R") int request, @JsonProperty("L") int... L) {
+        return new VRouter(name, B, M, request, L);
     }
 
     @Override

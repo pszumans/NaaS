@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.*;
 
 @Getter @Setter
-public class pRouter extends Router implements Visualisable, Locator {
+public class PRouter extends Router implements Visualisable, Locator {
 
     private int location; // geographical location
     private int substratePower = power;
@@ -14,21 +14,21 @@ public class pRouter extends Router implements Visualisable, Locator {
     private Network network;
 
     private Map<Integer, List<Integer>> requests;
-    private Map<Integer, vRouter> vRouters;
+    private Map<Integer, VRouter> vRouters;
 
-    public pRouter(String name, int Bw, int Mw, int Lw) {
+    public PRouter(String name, int Bw, int Mw, int Lw) {
         super(name, Bw, Mw);
         location = Lw;
         substratePower = power;
         substrateMemory = memory;
     }
 
-    public pRouter(String name, int Bw, int Mw, int Lw, Network network) {
+    public PRouter(String name, int Bw, int Mw, int Lw, Network network) {
         this(name, Bw, Mw, Lw);
         this.network = network;
     }
 
-    public pRouter(String name) {
+    public PRouter(String name) {
         super(name);
     }
 
@@ -86,7 +86,7 @@ public class pRouter extends Router implements Visualisable, Locator {
         return sb.toString();
     }
 
-    public void setVRouters(Map<Integer, vRouter> vRouters) {
+    public void setVRouters(Map<Integer, VRouter> vRouters) {
         vRouters.entrySet().forEach(e ->
                 serveRequest(e.getKey(), e.getValue()));
     }
@@ -107,7 +107,7 @@ public class pRouter extends Router implements Visualisable, Locator {
         return (checkPower(Bv) && checkMemory(Mv) && checkLocation(Lv));
     }
 
-    public void serveRequest(int request, vRouter router) {
+    public void serveRequest(int request, VRouter router) {
         if (requests == null)
             requests = new LinkedHashMap<>();
         if (vRouters == null)
@@ -151,11 +151,11 @@ public class pRouter extends Router implements Visualisable, Locator {
         network.getLocations().get(location).update(power, memory);
     }
 
-    public boolean isAllocated(vRouter router) {
+    public boolean isAllocated(VRouter router) {
         return vRouters.containsValue(router);
     }
 
-    public boolean checkParameters(vRouter router) {
+    public boolean checkParameters(VRouter router) {
         boolean toReturn = (vRouters != null && vRouters.containsKey(router.getReqIndex())) ? false : checkAll(router.getPower(), router.getMemory(), router.getLocations());
 //        if (!toReturn)
 //            System.out.println("LOCATION CHECK: p = " + location + " v = " + router.getLocations());
@@ -174,8 +174,8 @@ public class pRouter extends Router implements Visualisable, Locator {
 
 
     @JsonCreator
-    public static pRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("vRouters") Map<Integer,vRouter> vRouters, @JsonProperty("L") int L) {
-        pRouter router = new pRouter(name, B, M, L);
+    public static PRouter JsonParser(@JsonProperty("name") String name, @JsonProperty("B") int B, @JsonProperty("M") int M, @JsonProperty("vRouters") Map<Integer, VRouter> vRouters, @JsonProperty("L") int L) {
+        PRouter router = new PRouter(name, B, M, L);
         router.setVRouters(vRouters);
         return router;
     }

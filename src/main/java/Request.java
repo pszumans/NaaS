@@ -22,31 +22,31 @@ public class Request extends SimpleGraph implements ListenableGraph {
     private String name;
     private int index;
     private boolean isServed;
-    private Set<vLink> links;
+    private Set<VLink> links;
 
     private double duration;
 
     private static Random RANDOM;
-    public static Map<List, GnmRandomGraphGenerator<vRouter, vLink>> randomGraphGenerators;
+    public static Map<List, GnmRandomGraphGenerator<VRouter, VLink>> randomGraphGenerators;
 
     public Request(Request request) {
-        this(vLink.class, request.getIndex());
+        this(VLink.class, request.getIndex());
         links = request.getLinks();
     }
 
-    public Request(Class<? extends vLink> edgeClass) {
+    public Request(Class<? extends VLink> edgeClass) {
         super(edgeClass);
         index = ++COUNTER;
         setName(null);
     }
 
-    public Request(Class<? extends vLink> edgeClass, int i) {
+    public Request(Class<? extends VLink> edgeClass, int i) {
         super(edgeClass);
         index = i;
         setName(name);
     }
 
-    public Request(Class<? extends vLink> edgeClass, String name) {
+    public Request(Class<? extends VLink> edgeClass, String name) {
         super(edgeClass);
         index = ++COUNTER;
         setName(name);
@@ -85,8 +85,8 @@ public class Request extends SimpleGraph implements ListenableGraph {
     }
 
     private static Request generateRandom(int numberOfRouters, int numberOfLinks, long seed) {
-        Request request = new Request(vLink.class);
-        GnmRandomGraphGenerator<vRouter, vLink> randomGraphGenerator;
+        Request request = new Request(VLink.class);
+        GnmRandomGraphGenerator<VRouter, VLink> randomGraphGenerator;
         List key = Arrays.asList(numberOfRouters, numberOfLinks, seed);
         if (randomGraphGenerators.containsKey(key)) {
             randomGraphGenerator = randomGraphGenerators.get(key);
@@ -99,11 +99,11 @@ public class Request extends SimpleGraph implements ListenableGraph {
             randomGraphGenerators.put(key, randomGraphGenerator);
         }
         final Set<Set<Integer>> set = new HashSet<>();
-        final int max = vRouter.LOC_MAX;
+        final int max = VRouter.LOC_MAX;
         final int reqIndex = request.getIndex();
-        VertexFactory<vRouter> vertexFactory = (() -> {
+        VertexFactory<VRouter> vertexFactory = (() -> {
             int size = set.size();
-            vRouter router = new vRouter(reqIndex);
+            VRouter router = new VRouter(reqIndex);
             if (size == max) {
                 return router;
             }
@@ -112,20 +112,20 @@ public class Request extends SimpleGraph implements ListenableGraph {
             }
             return router;
         });
-        ConnectivityInspector<vRouter, vLink> cI; //= new ConnectivityInspector<vRouter, vLink>(request);
+        ConnectivityInspector<VRouter, VLink> cI; //= new ConnectivityInspector<VRouter, VLink>(request);
         do {
             randomGraphGenerator.generateGraph(request, vertexFactory, null);
-            cI = new ConnectivityInspector<vRouter, vLink>(request);
+            cI = new ConnectivityInspector<VRouter, VLink>(request);
             if (!cI.isGraphConnected()) {
-                request = new Request(vLink.class, reqIndex);
+                request = new Request(VLink.class, reqIndex);
             }
         } while (!cI.isGraphConnected());
-        request.edgeSet().forEach(l -> ((vLink) l).randomize(reqIndex));
+        request.edgeSet().forEach(l -> ((VLink) l).randomize(reqIndex));
         request.setLinks(request.edgeSet());
         return request;
     }
 
-    public void addLink(vLink link) {
+    public void addLink(VLink link) {
         if (links == null)
             links = new TreeSet<>();
         links.add(link);
@@ -149,18 +149,18 @@ public class Request extends SimpleGraph implements ListenableGraph {
 
     public static void resetCounter() {
         COUNTER = 0;
-        vRouter.resetCounter();
+        VRouter.resetCounter();
     }
 
     public String getRoutersParam(int i) {
         StringBuilder sb = new StringBuilder();
-        vertexSet().forEach(r -> sb.append(((vRouter) r).getParam(i)));
+        vertexSet().forEach(r -> sb.append(((VRouter) r).getParam(i)));
         return sb.toString();
     }
 
     public String getLinksParam() {
         StringBuilder sb = new StringBuilder();
-        edgeSet().forEach(l -> sb.append(((vLink) l).getParam()));
+        edgeSet().forEach(l -> sb.append(((VLink) l).getParam()));
         return sb.toString();
     }
 
@@ -170,21 +170,21 @@ public class Request extends SimpleGraph implements ListenableGraph {
     }
 
     @JsonCreator
-    public static Request JsonParser(@JsonProperty("name") String name, @JsonProperty("links") TreeSet<vLink> links) {
-        Request request = new Request(vLink.class, name);
+    public static Request JsonParser(@JsonProperty("name") String name, @JsonProperty("links") TreeSet<VLink> links) {
+        Request request = new Request(VLink.class, name);
         links.forEach(l -> {
             request.assignLink(l);
         });
         request.links =
-//                (TreeSet<vLink>)
+//                (TreeSet<VLink>)
                 links;
 //        request.index = index;//++COUNTER;
         return request;
     }
 
-    private void assignLink(vLink link) {
-        vRouter r1 = link.getSource();
-        vRouter r2 = link.getTarget();
+    private void assignLink(VLink link) {
+        VRouter r1 = link.getSource();
+        VRouter r2 = link.getTarget();
         addVertex(r1);
         addVertex(r2);
         addEdge(r1, r2, link);
@@ -192,13 +192,13 @@ public class Request extends SimpleGraph implements ListenableGraph {
 
     public String getRoutersNames() {
         StringBuilder sb = new StringBuilder();
-        vertexSet().forEach(r -> sb.append(" ").append(((vRouter) r).getName()));
+        vertexSet().forEach(r -> sb.append(" ").append(((VRouter) r).getName()));
         return sb.toString();
     }
 
     public String getLinksNames() {
         StringBuilder sb = new StringBuilder();
-        edgeSet().forEach(l -> sb.append(" ").append(((vLink) l).getSigned()));
+        edgeSet().forEach(l -> sb.append(" ").append(((VLink) l).getSigned()));
         return sb.toString();
     }
 

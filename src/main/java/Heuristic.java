@@ -16,7 +16,7 @@ public class Heuristic extends Solver implements Serializable{
 
     private List<PathEnds> paths;
     private Map<Integer, List<Path>> pathsAllocated;
-    private Map<vRouter, pRouter> routersAllocation;
+    private Map<VRouter, PRouter> routersAllocation;
 
     private boolean stop;
     private boolean timeStarted;
@@ -58,7 +58,7 @@ public class Heuristic extends Solver implements Serializable{
         stop = false;
         if (!timeStarted) startTime();
 
-        List<vLink> links = new ArrayList<>(request.getLinks());
+        List<VLink> links = new ArrayList<>(request.getLinks());
         Collections.sort(links);
 
         Allocation all1, all2;
@@ -71,7 +71,7 @@ public class Heuristic extends Solver implements Serializable{
         }
 
         if (stop) {
-            Log.log(request);
+            Logger.log(request);
             updateTime();
             return false;
         }
@@ -84,7 +84,7 @@ public class Heuristic extends Solver implements Serializable{
             pathsAllocated.get(request.getIndex()).clear();
         }
         if (all1 == null && all2 == null) {
-            Log.log(request);
+            Logger.log(request);
             updateTime();
             return false;
         } else if (all1 != null && all2 != null) {
@@ -116,10 +116,10 @@ public class Heuristic extends Solver implements Serializable{
         fullTime += time;
     }
 
-    private Allocation allocateLinks(int reqIndex, List<vLink> links) {
+    private Allocation allocateLinks(int reqIndex, List<VLink> links) {
         Allocation allocation = new Allocation(reqIndex);
         routersAllocation = new LinkedHashMap<>();
-        for (vLink link : links) {
+        for (VLink link : links) {
             Path chosenPath = chooseBestPath(
                     pathsAllocated.get(reqIndex)
                     , link);
@@ -155,7 +155,7 @@ public class Heuristic extends Solver implements Serializable{
         super.releaseRequest(request);
     }
 
-    private Path chooseBestPath(List<Path> chosenPaths, vLink link) {
+    private Path chooseBestPath(List<Path> chosenPaths, VLink link) {
         List<PathEnds> properPaths = paths.stream().map(PathEnds::new).collect(Collectors.toList());
         properPaths = getProperPaths(excludeChosenPaths(properPaths, chosenPaths), link);
         if (properPaths.isEmpty())
@@ -173,7 +173,7 @@ public class Heuristic extends Solver implements Serializable{
         return properPaths;
     }
 
-    private List<PathEnds> getProperPaths(List<PathEnds> properPaths, vLink link) {
+    private List<PathEnds> getProperPaths(List<PathEnds> properPaths, VLink link) {
         properPaths =
                 properPaths.stream().filter(pathEnds ->
                         checkParameters(pathEnds, link) && pathEnds.getPaths().stream().anyMatch(p -> p.checkCapacity(link.getCapacity()))).collect(Collectors.toList());
@@ -181,7 +181,7 @@ public class Heuristic extends Solver implements Serializable{
         return properPaths;
     }
 
-    private boolean checkParameters(PathEnds routers, vLink link) {
+    private boolean checkParameters(PathEnds routers, VLink link) {
         routers.restoreDirection();
 
         boolean simpleFirst = routersAllocation.containsKey(link.getSource()) ? routersAllocation.get(link.getSource()).equals(routers.getFirst()) : false;

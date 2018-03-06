@@ -17,7 +17,7 @@ public abstract class Solver {
         if (!network.isRequestInService(request))
             network.addRequest(request);
         network.countLoadRates();
-        Log.log(request);
+        Logger.log(request);
         return true;
     }
 
